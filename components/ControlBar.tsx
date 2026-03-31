@@ -251,6 +251,7 @@ export default function ControlBar({
           WebkitBackdropFilter: 'blur(16px)',
           height: 52,
           paddingRight: 4,
+          paddingLeft: isMobile ? 8 : 0,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
         }}
@@ -276,8 +277,6 @@ export default function ControlBar({
             </>
           )}
         </button>
-
-        <div style={{ width: 1, height: 26, background: DIVIDER, flexShrink: 0 }} />
 
         {/* Layer slider */}
         <div style={{ padding: isMobile ? '0 14px' : '0 24px' }}>
