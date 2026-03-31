@@ -220,21 +220,28 @@ export default function ControlBar({
                 SUBMITTED FOR{' '}
                   <a href="https://sillyhacks.nyc" target="_blank" rel="noopener noreferrer" className="info-link" style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 500, textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>SILLY HACKS</a>
               </p>
-              <a href="https://sillyhacks.nyc" target="_blank" rel="noopener noreferrer" style={{ position: 'absolute', right: 0, bottom: 0 }}>
-                <div className="silly-hacks-wrapper">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/sillyhacks.png"
-                    alt="Silly Hacks"
-                    className="silly-hacks-img"
-                    style={{ height: 80, width: 'auto' }}
-                  />
-                </div>
-              </a>
+              {!isMobile && (
+                <a href="https://sillyhacks.nyc" target="_blank" rel="noopener noreferrer" style={{ position: 'absolute', right: 0, bottom: 0 }}>
+                  <div className="silly-hacks-wrapper">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/sillyhacks.png" alt="Silly Hacks" className="silly-hacks-img" style={{ height: 80, width: 'auto' }} />
+                  </div>
+                </a>
+              )}
             </div>
-            <p style={{ ...MONO, fontSize: 14, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: 0, marginTop: 32 }}>
-              <a href="https://github.com/0xchsh/elevenrooms" target="_blank" rel="noopener noreferrer" className="info-link" style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 500, textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px', display: 'inline-flex', alignItems: 'center', gap: 6 }}><GithubLogo size={18} weight="fill" style={{ color: 'rgba(255,255,255,0.35)' }} />GITHUB</a>
-            </p>
+            <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <p style={{ ...MONO, fontSize: 14, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: 0 }}>
+                <a href="https://github.com/0xchsh/elevenrooms" target="_blank" rel="noopener noreferrer" className="info-link" style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 500, textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px', display: 'inline-flex', alignItems: 'center', gap: 6 }}><GithubLogo size={18} weight="fill" style={{ color: 'rgba(255,255,255,0.35)' }} />GITHUB</a>
+              </p>
+              {isMobile && (
+                <a href="https://sillyhacks.nyc" target="_blank" rel="noopener noreferrer">
+                  <div className="silly-hacks-wrapper">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/sillyhacks.png" alt="Silly Hacks" className="silly-hacks-img" style={{ height: 40, width: 'auto' }} />
+                  </div>
+                </a>
+              )}
+            </div>
           </div>
         </>
       )}
