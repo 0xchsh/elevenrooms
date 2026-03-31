@@ -150,7 +150,7 @@ export default function ControlBar({
                   }}
                 >
                   <Icon size={isMobile ? 22 : 26} weight="fill" style={{ color: active ? SCENE_COLORS[s] : INK_DIM }} />
-                  <span style={{ ...MONO, fontSize: isMobile ? 10 : 13, color: active ? SCENE_COLORS[s] : INK_DIM, textTransform: 'uppercase' }}>
+                  <span style={{ ...MONO, fontSize: isMobile ? 10 : 12, color: active ? SCENE_COLORS[s] : INK_DIM, textTransform: 'uppercase' }}>
                     {label}
                   </span>
                 </button>
