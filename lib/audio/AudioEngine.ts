@@ -1,13 +1,9 @@
 import { AUDIO_CONFIG } from '@/lib/audio/audioConfig'
 import type { SceneName, LayerStep } from '@/lib/three/types'
 
-const CROSSFADE = 2.5 // seconds of overlap between segments
-
 interface LayerState {
-  buf: AudioBuffer
-  outputGain: GainNode              // controlled by layer step (0 or 1)
-  activeSources: { node: AudioBufferSourceNode; srcGain: GainNode }[]
-  nextTimer: ReturnType<typeof setTimeout> | null
+  el: HTMLAudioElement
+  outputGain: GainNode
 }
 
 export class AudioEngine {
@@ -17,106 +13,40 @@ export class AudioEngine {
   private activeScene: SceneName | null = null
   private intermittentTimers: ReturnType<typeof setTimeout>[] = []
   private currentLayerStep: LayerStep = 4
+  // Audio elements pre-created synchronously in the gesture handler
+  private pendingEls: Map<string, HTMLAudioElement> = new Map()
 
-  constructor() {
-    // webkit prefix fallback for older iOS
-    const AC = (window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)
+  constructor(initialScene: SceneName) {
+    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
     this.ctx = new AC()
+    void this.ctx.resume()
     this.masterGain = this.ctx.createGain()
     this.masterGain.gain.value = 0.8
     this.masterGain.connect(this.ctx.destination)
-    // Re-resume whenever iOS suspends the context (phone calls, backgrounding, etc.)
+    // Re-resume if iOS suspends (phone calls, backgrounding, etc.)
     this.ctx.addEventListener('statechange', () => {
       if (this.ctx.state === 'suspended') void this.ctx.resume()
+    })
+    // Pre-create and start all audio elements synchronously within the user
+    // gesture handler — iOS Safari requires play() to be called in a gesture
+    AUDIO_CONFIG[initialScene].forEach((layer, i) => {
+      const el = new Audio(layer.src)
+      el.loop = true
+      el.preload = 'auto'
+      void el.play()
+      this.pendingEls.set(`${initialScene}-${i}`, el)
     })
   }
 
   async resume() {
-    if (this.ctx.state === 'suspended') await this.ctx.resume()
-  }
-
-  private async fetchBuffer(src: string): Promise<AudioBuffer> {
-    const res = await fetch(src)
-    const arrayBuffer = await res.arrayBuffer()
-    // Use callback-based decodeAudioData for broader iOS Safari compatibility
-    return new Promise((resolve, reject) => {
-      this.ctx.decodeAudioData(arrayBuffer, resolve, reject)
-    })
-  }
-
-  // ── Looping engine ────────────────────────────────────────────────────────
-
-  private playSegment(layerId: string, state: LayerState, offset: number) {
-    const { buf, outputGain, activeSources } = state
-    const remaining = buf.duration - offset
-
-    // Spawn source node
-    const node = this.ctx.createBufferSource()
-    node.buffer = buf
-    // Subtle pitch variation so repeated segments never sound identical
-    node.playbackRate.value = 0.985 + Math.random() * 0.03
-
-    const srcGain = this.ctx.createGain()
-    srcGain.gain.setValueAtTime(0, this.ctx.currentTime)
-    srcGain.gain.linearRampToValueAtTime(1, this.ctx.currentTime + CROSSFADE)
-    node.connect(srcGain)
-    srcGain.connect(outputGain)
-    node.start(this.ctx.currentTime, offset)
-
-    activeSources.push({ node, srcGain })
-
-    // Schedule the crossfade into the next segment
-    const crossfadeAt = Math.max(0, (remaining - CROSSFADE) * 1000)
-    const timer = setTimeout(() => {
-      if (!this.layerStates.has(layerId)) return
-
-      // Fade this segment out
-      srcGain.gain.setValueAtTime(srcGain.gain.value, this.ctx.currentTime)
-      srcGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + CROSSFADE)
-
-      // Clean up this source after fade
-      setTimeout(() => {
-        try { node.stop(0) } catch {}
-        node.disconnect()
-        srcGain.disconnect()
-        const s = this.layerStates.get(layerId)
-        if (s) s.activeSources = s.activeSources.filter(x => x.node !== node)
-      }, CROSSFADE * 1200)
-
-      // Start next segment at a random offset (bias toward first 60% to avoid silence near end)
-      const nextOffset = Math.random() * buf.duration * 0.65
-      this.playSegment(layerId, state, nextOffset)
-    }, crossfadeAt)
-
-    state.nextTimer = timer
-  }
-
-  private startLayerLoop(name: SceneName, layerIndex: number, buf: AudioBuffer) {
-    const layerId = `${name}-${layerIndex}`
-
-    const config = AUDIO_CONFIG[name][layerIndex]
-    const baseGain = config.baseGain ?? 1
-    const outputGain = this.ctx.createGain()
-    outputGain.gain.value = layerIndex < this.currentLayerStep ? baseGain : 0
-    outputGain.connect(this.masterGain)
-
-    const state: LayerState = { buf, outputGain, activeSources: [], nextTimer: null }
-    this.layerStates.set(layerId, state)
-
-    // Random start so layers don't all hit their seams at the same time
-    const initialOffset = Math.random() * buf.duration * 0.65
-    this.playSegment(layerId, state, initialOffset)
+    if (this.ctx.state !== 'running') await this.ctx.resume()
   }
 
   private stopLayer(layerId: string) {
     const state = this.layerStates.get(layerId)
     if (!state) return
-    if (state.nextTimer) clearTimeout(state.nextTimer)
-    state.activeSources.forEach(({ node, srcGain }) => {
-      try { node.stop(0) } catch {}
-      node.disconnect()
-      srcGain.disconnect()
-    })
+    state.el.pause()
+    state.el.src = ''
     state.outputGain.disconnect()
     this.layerStates.delete(layerId)
   }
@@ -137,7 +67,6 @@ export class AudioEngine {
 
     const getOutputGain = () => this.layerStates.get(layerId)?.outputGain ?? null
 
-    // Start silent
     getOutputGain()?.gain.setTargetAtTime(0, this.ctx.currentTime, fadeTime)
 
     const scheduleBurst = () => {
@@ -155,8 +84,7 @@ export class AudioEngine {
       }
 
       const nextInterval = (intervalMin + Math.random() * (intervalMax - intervalMin)) * 1000
-      const next = setTimeout(scheduleBurst, nextInterval)
-      this.intermittentTimers.push(next)
+      this.intermittentTimers.push(setTimeout(scheduleBurst, nextInterval))
     }
 
     const initialDelay = (intervalMin * 0.5 + Math.random() * intervalMin) * 1000
@@ -169,7 +97,6 @@ export class AudioEngine {
     await this.resume()
     this.clearIntermittentTimers()
 
-    // Stop all layers from old scene
     if (this.activeScene && this.activeScene !== name) {
       AUDIO_CONFIG[this.activeScene].forEach((_, i) => {
         this.stopLayer(`${this.activeScene}-${i}`)
@@ -181,17 +108,28 @@ export class AudioEngine {
 
     for (let i = 0; i < layers.length; i++) {
       const layerId = `${name}-${i}`
-      // Skip if already running (scene revisit)
       if (this.layerStates.has(layerId)) continue
-      try {
-        const buf = await this.fetchBuffer(layers[i].src)
-        this.startLayerLoop(name, i, buf)
-      } catch {
-        console.warn(`Failed to load audio: ${layers[i].src}`)
-      }
+
+      const config = layers[i]
+      const baseGain = config.baseGain ?? 1
+      const active = i < this.currentLayerStep && !config.intermittent
+
+      // Use the pre-created element (started in gesture) or create a new one
+      const pendingEl = this.pendingEls.get(layerId)
+      this.pendingEls.delete(layerId)
+      const el = pendingEl ?? new Audio(config.src)
+      el.loop = true
+      if (!pendingEl) void el.play().catch(() => {})
+
+      const source = this.ctx.createMediaElementSource(el)
+      const outputGain = this.ctx.createGain()
+      outputGain.gain.value = active ? baseGain : 0
+      source.connect(outputGain)
+      outputGain.connect(this.masterGain)
+
+      this.layerStates.set(layerId, { el, outputGain })
     }
 
-    // Start intermittent schedulers
     layers.forEach((layer, i) => {
       if (layer.intermittent) this.scheduleIntermittentLayer(name, i)
     })
@@ -210,7 +148,6 @@ export class AudioEngine {
       const baseGain = layer.baseGain ?? 1
       if (layer.intermittent) {
         if (!active) state.outputGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.3)
-        // Re-activation is handled naturally by the next scheduled burst
       } else {
         state.outputGain.gain.setTargetAtTime(active ? baseGain : 0, this.ctx.currentTime, 0.3)
       }
@@ -228,6 +165,8 @@ export class AudioEngine {
         this.stopLayer(`${this.activeScene}-${i}`)
       })
     }
+    this.pendingEls.forEach(el => { el.pause(); el.src = '' })
+    this.pendingEls.clear()
     this.ctx.close()
   }
 }

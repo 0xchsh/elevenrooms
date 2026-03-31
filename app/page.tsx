@@ -32,7 +32,7 @@ export default function Home() {
     if (audioEngineRef.current) return
     // Synchronous: iOS Safari requires AudioContext creation + resume to happen
     // within the synchronous part of the gesture handler
-    const engine = new AudioEngine()
+    const engine = new AudioEngine(sceneRef.current)
     audioEngineRef.current = engine
     setAudioReady(true)
     engine.setScene(sceneRef.current).then(() => {
