@@ -19,7 +19,12 @@ export class AudioEngine {
   private currentLayerStep: LayerStep = 4
 
   constructor() {
-    this.ctx = new AudioContext()
+    // Use webkit prefix fallback for older iOS Safari
+    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    this.ctx = new AC()
+    // Resume synchronously within the user gesture — iOS Safari requires
+    // ctx.resume() to be called (not just awaited) during the gesture handler
+    void this.ctx.resume()
     this.masterGain = this.ctx.createGain()
     this.masterGain.gain.value = 0.8
     this.masterGain.connect(this.ctx.destination)
