@@ -75,7 +75,7 @@ export default function Home() {
         >
           <span
             className="tracking-widest uppercase animate-pulse pointer-events-none"
-            style={{ color: '#ffffff', fontFamily: 'monospace', fontSize: 16, letterSpacing: '0.2em' }}
+            style={{ color: '#ffffff', fontFamily: 'monospace', fontSize: 'clamp(11px, 3vw, 16px)', letterSpacing: '0.2em' }}
           >
             click to enable sound
           </span>
