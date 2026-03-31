@@ -296,7 +296,7 @@ export default function ControlBar({
             const others = SCENES.filter(s => s !== scene)
             selectScene(others[Math.floor(Math.random() * others.length)])
           }}
-          className="flex items-center justify-center transition-all duration-150 hover:opacity-50 hover:scale-110"
+          className="flex items-center justify-center transition-all duration-150 hover:opacity-50 hover:scale-125"
           style={{ height: '100%', padding: '0 14px', borderLeft: `1px solid ${DIVIDER}`, borderRight: `1px solid ${DIVIDER}` }}
           title="Random room"
           aria-label="Random room"
@@ -307,7 +307,7 @@ export default function ControlBar({
         {/* Mute */}
         <button
           onClick={() => onVolumeChange(volume === 0 ? 0.8 : 0)}
-          className="flex items-center justify-center transition-all duration-150 hover:opacity-50 hover:scale-110"
+          className="flex items-center justify-center transition-all duration-150 hover:opacity-50 hover:scale-125"
           style={{ height: '100%', padding: '0 14px', borderRight: `1px solid ${DIVIDER}` }}
           title={volume === 0 ? 'Unmute' : 'Mute'}
           aria-label={volume === 0 ? 'Unmute' : 'Mute'}
@@ -321,7 +321,7 @@ export default function ControlBar({
         {/* Info */}
         <button
           onClick={openInfo}
-          className="flex items-center justify-center transition-all duration-150 hover:opacity-50 hover:scale-110"
+          className="flex items-center justify-center transition-all duration-150 hover:opacity-50 hover:scale-125"
           style={{ height: '100%', padding: '0 14px' }}
           title="Info"
           aria-label="Info"
