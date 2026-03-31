@@ -70,10 +70,11 @@ export default function Home() {
         <div
           className="absolute inset-0 flex items-center justify-center cursor-pointer z-10"
           onClick={initAudio}
+          style={{ background: 'rgba(0,0,0,0.45)' }}
         >
           <span
-            className="text-xs tracking-widest uppercase animate-pulse pointer-events-none"
-            style={{ color: '#ffffff', fontFamily: "var(--font-geist-pixel-square), monospace" }}
+            className="tracking-widest uppercase animate-pulse pointer-events-none"
+            style={{ color: '#ffffff', fontFamily: 'monospace', fontSize: 16, letterSpacing: '0.2em' }}
           >
             click to enable sound
           </span>

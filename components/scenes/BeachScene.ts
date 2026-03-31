@@ -12,14 +12,21 @@ export function createBeachScene(): SceneModule {
   function init(scene: THREE.Scene, cam: THREE.PerspectiveCamera) {
     camera = cam
 
-    scene.fog = new THREE.FogExp2(0x3a6080, 0.022)
+    scene.fog = new THREE.FogExp2(0x050d18, 0.022)
 
-    const ambient = new THREE.AmbientLight(0xfff5cc, 0.25)
+    const ambient = new THREE.AmbientLight(0xfff5cc, 0.18)
     scene.add(ambient)
 
-    const sunLight = new THREE.DirectionalLight(0xfff0a0, 2.2)
+    const sunLight = new THREE.DirectionalLight(0xfff0a0, 1.6)
     sunLight.position.set(5, 14, 4)
     scene.add(sunLight)
+
+    // Sky dome — dark at top, fades to fog at horizon
+    const skyGeo = new THREE.SphereGeometry(55, 16, 10)
+    const skyMat = new THREE.MeshLambertMaterial({ color: 0x050d18, side: THREE.BackSide })
+    const sky = new THREE.Mesh(skyGeo, skyMat)
+    scene.add(sky)
+    objects.push(sky)
 
     const mat = new THREE.MeshLambertMaterial({ color: 0xffffff })
 

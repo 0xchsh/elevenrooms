@@ -24,6 +24,17 @@ import type { SceneName, SceneModule } from '@/lib/three/types'
 
 export const CONTROL_BAR_HEIGHT = 0
 
+// Mix scene color into near-black background at given strength (0–1)
+function tintedBg(hex: string, strength = 0.12): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  const br = Math.round(r * strength)
+  const bg = Math.round(g * strength)
+  const bb = Math.round(b * strength)
+  return `rgb(${br},${bg},${bb})`
+}
+
 interface Props {
   scene: SceneName
 }
@@ -91,7 +102,7 @@ export default function SceneViewer({ scene }: Props) {
       width: '100%',
       height: `calc(100vh - ${CONTROL_BAR_HEIGHT}px)`,
       color: SCENE_COLORS[sceneNameRef.current],
-      background: '#0a0a0a',
+      background: tintedBg(SCENE_COLORS[sceneNameRef.current]),
       transition: 'opacity 0.4s ease, color 0.6s ease',
     })
     mountRef.current.appendChild(effect.domElement)
@@ -175,7 +186,7 @@ export default function SceneViewer({ scene }: Props) {
         width: '100%',
         height: `calc(100vh - ${CONTROL_BAR_HEIGHT}px)`,
         color: SCENE_COLORS[scene],
-        background: '#0a0a0a',
+        background: tintedBg(SCENE_COLORS[scene]),
         opacity: '0',
         transition: 'opacity 0.4s ease',
       })
@@ -210,7 +221,7 @@ export default function SceneViewer({ scene }: Props) {
     <div
       ref={mountRef}
       className="absolute inset-x-0 top-0"
-      style={{ height: `calc(100vh - ${CONTROL_BAR_HEIGHT}px)`, background: '#0a0a0a' }}
+      style={{ height: `calc(100vh - ${CONTROL_BAR_HEIGHT}px)`, background: '#0a0a0a' /* tinted per-effect */}}
     />
   )
 }
