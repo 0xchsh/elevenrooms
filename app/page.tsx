@@ -28,22 +28,16 @@ export default function Home() {
   layerStepRef.current = layerStep
   volumeRef.current = volume
 
-  // Initialize AudioEngine on first user click (autoplay policy)
-  useEffect(() => {
-    async function initAudio() {
-      if (audioEngineRef.current) return
-      const { AudioEngine } = await import('@/lib/audio/AudioEngine')
-      const engine = new AudioEngine()
-      audioEngineRef.current = engine
-      await engine.setScene(sceneRef.current)
-      engine.setLayerStep(layerStepRef.current)
-      engine.setMasterVolume(volumeRef.current)
-      setAudioReady(true)
-    }
-
-    window.addEventListener('click', initAudio, { once: true })
-    return () => window.removeEventListener('click', initAudio)
-  }, [])
+  async function initAudio() {
+    if (audioEngineRef.current) return
+    const { AudioEngine } = await import('@/lib/audio/AudioEngine')
+    const engine = new AudioEngine()
+    audioEngineRef.current = engine
+    await engine.setScene(sceneRef.current)
+    engine.setLayerStep(layerStepRef.current)
+    engine.setMasterVolume(volumeRef.current)
+    setAudioReady(true)
+  }
 
   // Sync scene changes to audio
   useEffect(() => {
@@ -71,21 +65,18 @@ export default function Home() {
     <main className="relative w-screen h-screen overflow-hidden" style={{ background: '#0a0a0a' }}>
       <SceneViewer scene={scene} />
 
-      {/* Scene name overlay */}
-      <div
-        className="absolute top-5 left-6 text-xs tracking-widest uppercase pointer-events-none transition-colors duration-600"
-        style={{ color: `${tint}44`, fontFamily: 'monospace' }}
-      >
-        {scene}
-      </div>
-
-      {/* Click to begin hint */}
+      {/* Click-to-enable overlay — covers full screen, initializes audio on any tap/click */}
       {!audioReady && (
         <div
-          className="absolute top-5 right-6 text-xs tracking-widest uppercase pointer-events-none animate-pulse"
-          style={{ color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace' }}
+          className="absolute inset-0 flex items-center justify-center cursor-pointer z-10"
+          onClick={initAudio}
         >
-          click to begin
+          <span
+            className="text-xs tracking-widest uppercase animate-pulse pointer-events-none"
+            style={{ color: '#ffffff', fontFamily: "var(--font-geist-pixel-square), monospace" }}
+          >
+            click to enable sound
+          </span>
         </div>
       )}
 

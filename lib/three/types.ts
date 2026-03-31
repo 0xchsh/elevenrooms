@@ -1,6 +1,6 @@
 import type * as THREE from 'three'
 
-export type SceneName = 'city' | 'cafe' | 'nature'
+export type SceneName = 'city' | 'cafe' | 'nature' | 'fireplace' | 'library' | 'barbershop' | 'spacestation' | 'underwater' | 'casino' | 'gym' | 'tennis' | 'ramen' | 'beach' | 'laundromat' | 'club' | 'recordingstudio'
 
 export type LayerStep = 1 | 2 | 3 | 4
 

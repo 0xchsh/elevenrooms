@@ -7,6 +7,19 @@ import { SCENE_CHARSETS, SCENE_COLORS, ASCII_RESOLUTION } from '@/lib/three/asci
 import { createCityScene } from '@/components/scenes/CityScene'
 import { createCafeScene } from '@/components/scenes/CafeScene'
 import { createNatureScene } from '@/components/scenes/NatureScene'
+import { createFireplaceScene } from '@/components/scenes/FireplaceScene'
+import { createLibraryScene } from '@/components/scenes/LibraryScene'
+import { createBarbershopScene } from '@/components/scenes/BarbershopScene'
+import { createSpaceStationScene } from '@/components/scenes/SpaceStationScene'
+import { createUnderwaterScene } from '@/components/scenes/UnderwaterScene'
+import { createCasinoScene } from '@/components/scenes/CasinoScene'
+import { createGymScene } from '@/components/scenes/GymScene'
+import { createTennisScene } from '@/components/scenes/TennisScene'
+import { createRamenScene } from '@/components/scenes/RamenScene'
+import { createBeachScene } from '@/components/scenes/BeachScene'
+import { createLaundroMatScene } from '@/components/scenes/LaundroMatScene'
+import { createNightclubScene } from '@/components/scenes/NightclubScene'
+import { createRecordingStudioScene } from '@/components/scenes/RecordingStudioScene'
 import type { SceneName, SceneModule } from '@/lib/three/types'
 
 export const CONTROL_BAR_HEIGHT = 0
@@ -17,9 +30,22 @@ interface Props {
 
 function createScene(name: SceneName): SceneModule {
   switch (name) {
-    case 'city':   return createCityScene()
-    case 'cafe':   return createCafeScene()
-    case 'nature': return createNatureScene()
+    case 'city':         return createCityScene()
+    case 'cafe':         return createCafeScene()
+    case 'nature':       return createNatureScene()
+    case 'fireplace':    return createFireplaceScene()
+    case 'library':      return createLibraryScene()
+    case 'barbershop':   return createBarbershopScene()
+    case 'spacestation':     return createSpaceStationScene()
+    case 'underwater':       return createUnderwaterScene()
+    case 'casino':           return createCasinoScene()
+    case 'gym':              return createGymScene()
+    case 'tennis':           return createTennisScene()
+    case 'ramen':            return createRamenScene()
+    case 'beach':            return createBeachScene()
+    case 'laundromat':       return createLaundroMatScene()
+    case 'club':             return createNightclubScene()
+    case 'recordingstudio':  return createRecordingStudioScene()
   }
 }
 
