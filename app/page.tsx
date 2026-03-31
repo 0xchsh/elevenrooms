@@ -1,101 +1,102 @@
-import Image from "next/image";
+'use client'
+
+import dynamic from 'next/dynamic'
+import { useState, useRef, useEffect } from 'react'
+import ControlBar from '@/components/ControlBar'
+import type { SceneName, LayerStep } from '@/lib/three/types'
+import { SCENE_COLORS } from '@/lib/three/asciiRenderer'
+import type { AudioEngine } from '@/lib/audio/AudioEngine'
+
+const SceneViewer = dynamic(() => import('@/components/SceneViewer'), {
+  ssr: false,
+  loading: () => <div className="absolute inset-0" style={{ background: '#0a0a0a' }} />,
+})
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [scene, setScene] = useState<SceneName>('city')
+  const [layerStep, setLayerStep] = useState<LayerStep>(4)
+  const [volume, setVolume] = useState(0.8)
+  const [audioReady, setAudioReady] = useState(false)
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const audioEngineRef = useRef<AudioEngine | null>(null)
+  const sceneRef = useRef<SceneName>(scene)
+  const layerStepRef = useRef<LayerStep>(layerStep)
+  const volumeRef = useRef(volume)
+
+  // Keep refs in sync with state
+  sceneRef.current = scene
+  layerStepRef.current = layerStep
+  volumeRef.current = volume
+
+  // Initialize AudioEngine on first user click (autoplay policy)
+  useEffect(() => {
+    async function initAudio() {
+      if (audioEngineRef.current) return
+      const { AudioEngine } = await import('@/lib/audio/AudioEngine')
+      const engine = new AudioEngine()
+      audioEngineRef.current = engine
+      await engine.setScene(sceneRef.current)
+      engine.setLayerStep(layerStepRef.current)
+      engine.setMasterVolume(volumeRef.current)
+      setAudioReady(true)
+    }
+
+    window.addEventListener('click', initAudio, { once: true })
+    return () => window.removeEventListener('click', initAudio)
+  }, [])
+
+  // Sync scene changes to audio
+  useEffect(() => {
+    if (!audioReady || !audioEngineRef.current) return
+    audioEngineRef.current.setScene(scene).then(() => {
+      audioEngineRef.current!.setLayerStep(layerStep)
+    })
+  }, [scene]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync layer step changes to audio
+  useEffect(() => {
+    if (!audioReady || !audioEngineRef.current) return
+    audioEngineRef.current.setLayerStep(layerStep)
+  }, [layerStep, audioReady])
+
+  // Sync volume changes to audio
+  useEffect(() => {
+    if (!audioReady || !audioEngineRef.current) return
+    audioEngineRef.current.setMasterVolume(volume)
+  }, [volume, audioReady])
+
+  const tint = SCENE_COLORS[scene]
+
+  return (
+    <main className="relative w-screen h-screen overflow-hidden" style={{ background: '#0a0a0a' }}>
+      <SceneViewer scene={scene} />
+
+      {/* Scene name overlay */}
+      <div
+        className="absolute top-5 left-6 text-xs tracking-widest uppercase pointer-events-none transition-colors duration-600"
+        style={{ color: `${tint}44`, fontFamily: 'monospace' }}
+      >
+        {scene}
+      </div>
+
+      {/* Click to begin hint */}
+      {!audioReady && (
+        <div
+          className="absolute top-5 right-6 text-xs tracking-widest uppercase pointer-events-none animate-pulse"
+          style={{ color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace' }}
+        >
+          click to begin
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+      )}
+
+      <ControlBar
+        scene={scene}
+        onSceneChange={setScene}
+        layerStep={layerStep}
+        onLayerStepChange={setLayerStep}
+        volume={volume}
+        onVolumeChange={setVolume}
+      />
+    </main>
+  )
 }
