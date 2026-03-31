@@ -3,8 +3,8 @@ import { Agentation } from 'agentation'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Eleven Rooms',
-  description: 'Ambient soundscapes',
+  title: 'ElevenRooms',
+  description: 'An ambient soundscape experience powered by ElevenLabs. Choose a room, toggle the layers of sound, and let the atmosphere carry you.',
   icons: { icon: '/favicon.svg' },
 }
 
