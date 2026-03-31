@@ -59,7 +59,7 @@ export function createUnderwaterScene(): SceneModule {
   function init(scene: THREE.Scene, cam: THREE.PerspectiveCamera) {
     camera = cam
 
-    scene.fog = new THREE.FogExp2(0x001a2e, 0.07)
+    scene.fog = new THREE.FogExp2(0x001a2e, 0.045)
 
     const ambient = new THREE.AmbientLight(0x38bdf8, 0.3)
     scene.add(ambient)
@@ -108,16 +108,62 @@ export function createUnderwaterScene(): SceneModule {
       }
     })
 
-    // Kelp forest
+    // Kelp forest — denser, closer to camera
     const kelpPositions: [number, number][] = [
-      [-8, -4], [-7, -2], [-7.5, -5], [-6.5, -3],
-      [7, -3], [7.5, -5], [6.5, -2], [8, -4],
+      [-8, -4], [-7, -2], [-7.5, -5], [-6.5, -3], [-5.5, -1],
+      [7, -3], [7.5, -5], [6.5, -2], [8, -4], [5.5, -1],
       [-3, -7], [0, -7.5], [3.5, -7],
+      [-4, 2], [-2, 3], [2, 2.5], [4, 3], // foreground kelp
+      [-6, 1], [6, 1],
     ]
     kelpPositions.forEach(([kx, kz]) => addKelp(scene, kx, kz))
 
+    // Foreground coral formations
+    const coralFormations: [number, number][] = [[-3, 2], [0, 3], [3, 2.5], [-5, 0], [5, 1]]
+    coralFormations.forEach(([cx, cz]) => {
+      for (let i = 0; i < 5; i++) {
+        const h = 0.25 + Math.random() * 0.7
+        const coral = new THREE.Mesh(new THREE.ConeGeometry(0.05 + Math.random() * 0.04, h, 5), mat.clone())
+        coral.position.set(cx + (Math.random() - 0.5) * 0.6, h / 2, cz + (Math.random() - 0.5) * 0.4)
+        scene.add(coral); objects.push(coral)
+        kelpMeshes.push(coral)
+      }
+      // Fan coral (flat plane)
+      const fan = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.5 + Math.random() * 0.4, 0.6 + Math.random() * 0.3),
+        new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide })
+      )
+      fan.position.set(cx, 0.5 + Math.random() * 0.3, cz)
+      fan.rotation.y = Math.random() * Math.PI
+      scene.add(fan); objects.push(fan)
+      kelpMeshes.push(fan)
+    })
+
+    // Sunken anchor on the seafloor
+    const anchorShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2, 6), mat.clone())
+    anchorShaft.position.set(2, 0.6, -3)
+    anchorShaft.rotation.z = 0.3
+    scene.add(anchorShaft); objects.push(anchorShaft)
+
+    const anchorBar = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.7, 6), mat.clone())
+    anchorBar.rotation.z = Math.PI / 2
+    anchorBar.position.set(2, 1.1, -3)
+    scene.add(anchorBar); objects.push(anchorBar)
+
+    // Chest / debris box on floor
+    const chest = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.35, 0.35), mat.clone())
+    chest.position.set(-3.5, 0.18, -2)
+    chest.rotation.y = 0.4
+    scene.add(chest); objects.push(chest)
+
+    const chestLid = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.14, 0.35), mat.clone())
+    chestLid.position.set(-3.5, 0.43, -2)
+    chestLid.rotation.y = 0.4
+    chestLid.rotation.z = -0.25
+    scene.add(chestLid); objects.push(chestLid)
+
     // Light rays from surface
-    for (let r = 0; r < 5; r++) {
+    for (let r = 0; r < 8; r++) {
       const rayGeo = new THREE.CylinderGeometry(0.02, 0.8, 8, 6, 1, true)
       const rayMat = new THREE.MeshLambertMaterial({
         color: 0x38bdf8, transparent: true, opacity: 0.04, side: THREE.DoubleSide
@@ -156,8 +202,8 @@ export function createUnderwaterScene(): SceneModule {
     scene.add(bubblePts)
     objects.push(bubblePts)
 
-    cam.position.set(0, 4, 7)
-    cam.lookAt(0, 0, 0)
+    cam.position.set(0, 2.2, 7)
+    cam.lookAt(0, 1.0, 0)
   }
 
   function animate(delta: number, time: number) {
@@ -165,8 +211,8 @@ export function createUnderwaterScene(): SceneModule {
 
     // Camera drifts like current
     camera.position.x = Math.sin(time * 0.12) * 2
-    camera.position.y = 4 + Math.sin(time * 0.08) * 0.4
-    camera.lookAt(Math.sin(time * 0.1) * 1, 0, -1)
+    camera.position.y = 2.2 + Math.sin(time * 0.08) * 0.3
+    camera.lookAt(Math.sin(time * 0.1) * 1, 0.8, -1)
 
     // Kelp sway
     kelpMeshes.forEach((mesh, i) => {

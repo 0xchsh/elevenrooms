@@ -21,6 +21,39 @@
   padding: 0;
 }
 
+@keyframes silly-float {
+  0%   { transform: rotateX(0deg)   rotateY(0deg)   rotateZ(0deg); }
+  25%  { transform: rotateX(8deg)   rotateY(12deg)  rotateZ(-4deg); }
+  50%  { transform: rotateX(-6deg)  rotateY(-10deg) rotateZ(6deg); }
+  75%  { transform: rotateX(4deg)   rotateY(8deg)   rotateZ(-3deg); }
+  100% { transform: rotateX(0deg)   rotateY(0deg)   rotateZ(0deg); }
+}
+
+.silly-hacks-wrapper {
+  animation: silly-float 6s ease-in-out infinite;
+  display: inline-block;
+}
+
+.silly-hacks-img {
+  display: block;
+  filter: grayscale(1);
+  transform: scale(1) rotate(0deg);
+  transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.silly-hacks-wrapper:hover .silly-hacks-img {
+  filter: grayscale(0);
+  transform: scale(1.15) rotate(-4deg);
+}
+
+.info-link {
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+.info-link:hover {
+  color: rgba(255,255,255,1) !important;
+  opacity: 1;
+}
+
 .scene-picker-btn:hover {
   background: rgba(255, 255, 255, 0.05) !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
@@ -35,7 +68,9 @@ body {
   height: 100%;
   overflow: hidden;
   background: #0a0a0a;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #fff;
 }

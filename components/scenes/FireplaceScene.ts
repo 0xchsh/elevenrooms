@@ -73,6 +73,293 @@ export function createFireplaceScene(): SceneModule {
       objects.push(log)
     })
 
+    // Side walls
+    const sideWallGeo = new THREE.PlaneGeometry(10, 6)
+    const leftWall = new THREE.Mesh(sideWallGeo, new THREE.MeshLambertMaterial({ color: 0x0e0e0e }))
+    leftWall.rotation.y = Math.PI / 2
+    leftWall.position.set(-5.5, 3, -0.5)
+    scene.add(leftWall); objects.push(leftWall)
+
+    const rightWall = new THREE.Mesh(sideWallGeo.clone(), new THREE.MeshLambertMaterial({ color: 0x0e0e0e }))
+    rightWall.rotation.y = -Math.PI / 2
+    rightWall.position.set(5.5, 3, -0.5)
+    scene.add(rightWall); objects.push(rightWall)
+
+    // Ceiling
+    const ceilGeo = new THREE.PlaneGeometry(12, 10)
+    const ceil = new THREE.Mesh(ceilGeo, new THREE.MeshLambertMaterial({ color: 0x080808 }))
+    ceil.rotation.x = Math.PI / 2
+    ceil.position.set(0, 6, -0.5)
+    scene.add(ceil); objects.push(ceil)
+
+    // Rug in front of fireplace
+    const rugGeo = new THREE.BoxGeometry(3.6, 0.018, 2.4)
+    const rugMesh = new THREE.Mesh(rugGeo, new THREE.MeshLambertMaterial({ color: 0x1a1010 }))
+    rugMesh.position.set(0, 0.009, 0.8)
+    scene.add(rugMesh); objects.push(rugMesh)
+
+    // Rug border stripes
+    for (let rb = 0; rb < 2; rb++) {
+      const borderGeo = new THREE.BoxGeometry(3.2 - rb * 0.3, 0.02, 0.06)
+      const border = new THREE.Mesh(borderGeo, new THREE.MeshLambertMaterial({ color: 0x2a1a10 }))
+      border.position.set(0, 0.01, 0.22 + rb * 0.12)
+      scene.add(border); objects.push(border)
+    }
+
+    // Coffee table
+    const ctTopGeo = new THREE.BoxGeometry(1.4, 0.06, 0.7)
+    const ctTop = new THREE.Mesh(ctTopGeo, mat.clone())
+    ctTop.position.set(0, 0.46, 1.5)
+    scene.add(ctTop); objects.push(ctTop)
+
+    for (let cx = -1; cx <= 1; cx += 2) {
+      for (let cz = -1; cz <= 1; cz += 2) {
+        const legGeo = new THREE.BoxGeometry(0.05, 0.44, 0.05)
+        const leg = new THREE.Mesh(legGeo, mat.clone())
+        leg.position.set(cx * 0.62, 0.22, 1.5 + cz * 0.28)
+        scene.add(leg); objects.push(leg)
+      }
+    }
+
+    // Items on coffee table
+    const bookGeo = new THREE.BoxGeometry(0.28, 0.04, 0.2)
+    const book = new THREE.Mesh(bookGeo, mat.clone())
+    book.position.set(-0.3, 0.51, 1.5)
+    book.rotation.y = 0.3
+    scene.add(book); objects.push(book)
+
+    const mugCTGeo = new THREE.CylinderGeometry(0.04, 0.035, 0.1, 8)
+    const mugCT = new THREE.Mesh(mugCTGeo, mat.clone())
+    mugCT.position.set(0.3, 0.51, 1.48)
+    scene.add(mugCT); objects.push(mugCT)
+
+    // Bookshelf on left wall
+    const shelfBaseGeo = new THREE.BoxGeometry(0.22, 2.4, 1.6)
+    const shelfBase = new THREE.Mesh(shelfBaseGeo, mat.clone())
+    shelfBase.position.set(-5.3, 1.2, -1.5)
+    scene.add(shelfBase); objects.push(shelfBase)
+
+    for (let shelf = 0; shelf < 4; shelf++) {
+      const shelfGeo = new THREE.BoxGeometry(0.22, 0.04, 1.5)
+      const shelfMesh = new THREE.Mesh(shelfGeo, mat.clone())
+      shelfMesh.position.set(-5.3, 0.3 + shelf * 0.6, -1.5)
+      scene.add(shelfMesh); objects.push(shelfMesh)
+
+      // Books on each shelf
+      let bookX = -0.62
+      while (bookX < 0.62) {
+        const bw = 0.06 + Math.random() * 0.06
+        const bh = 0.22 + Math.random() * 0.18
+        const bGeo = new THREE.BoxGeometry(0.22, bh, bw)
+        const bMesh = new THREE.Mesh(bGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }))
+        bMesh.position.set(-5.3, 0.32 + shelf * 0.6 + bh / 2, -1.5 + bookX)
+        scene.add(bMesh); objects.push(bMesh)
+        bookX += bw + 0.01
+      }
+    }
+
+    // Framed painting above mantel
+    const frameGeo = new THREE.BoxGeometry(1.4, 1.0, 0.06)
+    const frame = new THREE.Mesh(frameGeo, mat.clone())
+    frame.position.set(0, 3.4, -1.78)
+    scene.add(frame); objects.push(frame)
+
+    const paintingGeo = new THREE.PlaneGeometry(1.2, 0.82)
+    const paintingMat = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x110808, emissiveIntensity: 0.8 })
+    const painting = new THREE.Mesh(paintingGeo, paintingMat)
+    painting.position.set(0, 3.4, -1.74)
+    scene.add(painting); objects.push(painting)
+
+    // Floor lamp in right corner
+    const lampBaseGeo = new THREE.CylinderGeometry(0.14, 0.18, 0.06, 10)
+    const lampBase = new THREE.Mesh(lampBaseGeo, mat.clone())
+    lampBase.position.set(3.8, 0.03, 0.5)
+    scene.add(lampBase); objects.push(lampBase)
+
+    const lampPoleGeo = new THREE.CylinderGeometry(0.02, 0.02, 1.7, 6)
+    const lampPole = new THREE.Mesh(lampPoleGeo, mat.clone())
+    lampPole.position.set(3.8, 0.88, 0.5)
+    scene.add(lampPole); objects.push(lampPole)
+
+    const lampShadeGeo = new THREE.CylinderGeometry(0.06, 0.28, 0.32, 10)
+    const lampShadeMat = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0xffd080, emissiveIntensity: 0.5 })
+    const lampShade = new THREE.Mesh(lampShadeGeo, lampShadeMat)
+    lampShade.position.set(3.8, 1.9, 0.5)
+    scene.add(lampShade); objects.push(lampShade)
+
+    const lampLight = new THREE.PointLight(0xffd080, 1.2, 6)
+    lampLight.position.set(3.8, 1.75, 0.5)
+    scene.add(lampLight); objects.push(lampLight)
+
+    // Decorative picture frame on right wall
+    const wallFrameGeo = new THREE.BoxGeometry(0.06, 1.1, 0.8)
+    const wallFrame = new THREE.Mesh(wallFrameGeo, mat.clone())
+    wallFrame.position.set(5.3, 2.5, -2.0)
+    scene.add(wallFrame); objects.push(wallFrame)
+
+    const wallArtGeo = new THREE.PlaneGeometry(0.64, 0.92)
+    const wallArtMat = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x080810, emissiveIntensity: 0.5 })
+    const wallArt = new THREE.Mesh(wallArtGeo, wallArtMat)
+    wallArt.rotation.y = -Math.PI / 2
+    wallArt.position.set(5.27, 2.5, -2.0)
+    scene.add(wallArt); objects.push(wallArt)
+
+    // Throw blanket draped over couch arm
+    const blanketGeo = new THREE.BoxGeometry(0.35, 0.6, 0.55)
+    const blanket = new THREE.Mesh(blanketGeo, mat.clone())
+    blanket.position.set(-1.45, 0.62, 2.1)
+    blanket.rotation.z = 0.15
+    scene.add(blanket); objects.push(blanket)
+
+    // Second candle on mantel (other side)
+    const candle2Geo = new THREE.CylinderGeometry(0.035, 0.035, 0.18, 8)
+    const candle2 = new THREE.Mesh(candle2Geo, mat.clone())
+    candle2.position.set(-0.6, 2.69, -1.66)
+    scene.add(candle2); objects.push(candle2)
+
+    const candleLight2 = new THREE.PointLight(0xfb923c, 0.4, 3)
+    candleLight2.position.set(-0.6, 2.82, -1.66)
+    scene.add(candleLight2); objects.push(candleLight2)
+
+    // Fireplace tools (poker set) — right of fireplace
+    const toolStandGeo = new THREE.CylinderGeometry(0.1, 0.12, 0.06, 10)
+    const toolStand = new THREE.Mesh(toolStandGeo, mat.clone())
+    toolStand.position.set(1.85, 0.03, -1.75)
+    scene.add(toolStand); objects.push(toolStand)
+
+    const toolHandleGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.8, 6)
+    const toolHandle = new THREE.Mesh(toolHandleGeo, mat.clone())
+    toolHandle.position.set(1.85, 0.43, -1.75)
+    scene.add(toolHandle); objects.push(toolHandle)
+
+    for (let ti = 0; ti < 3; ti++) {
+      const toolGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.7, 5)
+      const tool = new THREE.Mesh(toolGeo, mat.clone())
+      tool.position.set(1.78 + ti * 0.07, 0.38, -1.72)
+      tool.rotation.z = (ti - 1) * 0.15
+      scene.add(tool); objects.push(tool)
+    }
+
+    // Wood pile left of fireplace
+    const woodPilePositions: [number, number, number, number][] = [
+      [-2.2, 0.08, -1.8, 0], [-2.0, 0.08, -1.75, 0.4],
+      [-2.1, 0.08, -1.85, -0.3], [-2.15, 0.2, -1.8, 0.15],
+      [-2.0, 0.2, -1.75, -0.2],
+    ]
+    woodPilePositions.forEach(([wx, wy, wz, wr]) => {
+      const wGeo = new THREE.CylinderGeometry(0.06, 0.08, 0.55, 6)
+      const w = new THREE.Mesh(wGeo, mat.clone())
+      w.rotation.z = Math.PI / 2
+      w.rotation.y = wr
+      w.position.set(wx, wy, wz)
+      scene.add(w); objects.push(w)
+    })
+
+    // Armchair — left of couch, angled toward fireplace
+    const acSeatGeo = new THREE.BoxGeometry(0.85, 0.3, 0.75)
+    const acSeat = new THREE.Mesh(acSeatGeo, mat.clone())
+    acSeat.position.set(-3.0, 0.35, 1.5)
+    acSeat.rotation.y = 0.4
+    scene.add(acSeat); objects.push(acSeat)
+
+    const acBackGeo = new THREE.BoxGeometry(0.85, 0.65, 0.15)
+    const acBack = new THREE.Mesh(acBackGeo, mat.clone())
+    acBack.position.set(-3.0, 0.73, 1.78)
+    acBack.rotation.y = 0.4
+    scene.add(acBack); objects.push(acBack)
+
+    for (let arm = -1; arm <= 1; arm += 2) {
+      const acArmGeo = new THREE.BoxGeometry(0.15, 0.4, 0.75)
+      const acArm = new THREE.Mesh(acArmGeo, mat.clone())
+      acArm.position.set(-3.0 + arm * 0.35, 0.5, 1.5)
+      acArm.rotation.y = 0.4
+      scene.add(acArm); objects.push(acArm)
+    }
+
+    // Plant in corner
+    const potGeo = new THREE.CylinderGeometry(0.14, 0.1, 0.28, 10)
+    const pot = new THREE.Mesh(potGeo, mat.clone())
+    pot.position.set(4.5, 0.14, -2.5)
+    scene.add(pot); objects.push(pot)
+
+    const stemGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.5, 5)
+    const stem = new THREE.Mesh(stemGeo, mat.clone())
+    stem.position.set(4.5, 0.53, -2.5)
+    scene.add(stem); objects.push(stem)
+
+    for (let branch = 0; branch < 7; branch++) {
+      const angle = (branch / 7) * Math.PI * 2
+      const r = 0.06 + Math.random() * 0.18
+      const leafGeo = new THREE.SphereGeometry(0.12 + Math.random() * 0.1, 5, 4)
+      const leaf = new THREE.Mesh(leafGeo, mat.clone())
+      leaf.position.set(4.5 + Math.cos(angle) * r, 0.55 + Math.random() * 0.4, -2.5 + Math.sin(angle) * r)
+      scene.add(leaf); objects.push(leaf)
+    }
+
+    // Window on right wall with curtains
+    const windowFrameGeo = new THREE.BoxGeometry(0.06, 1.6, 1.2)
+    const windowFrame = new THREE.Mesh(windowFrameGeo, mat.clone())
+    windowFrame.position.set(5.42, 2.0, 0.5)
+    scene.add(windowFrame); objects.push(windowFrame)
+
+    const glassGeo = new THREE.PlaneGeometry(1.0, 1.4)
+    const glassMat = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x080c14, emissiveIntensity: 0.5, transparent: true, opacity: 0.5 })
+    const glass = new THREE.Mesh(glassGeo, glassMat)
+    glass.rotation.y = -Math.PI / 2
+    glass.position.set(5.38, 2.0, 0.5)
+    scene.add(glass); objects.push(glass)
+
+    const moonGlow = new THREE.PointLight(0x8899cc, 0.6, 5)
+    moonGlow.position.set(4.8, 2.0, 0.5)
+    scene.add(moonGlow); objects.push(moonGlow)
+
+    for (let cs = -1; cs <= 1; cs += 2) {
+      const curtainGeo = new THREE.BoxGeometry(0.06, 1.8, 0.35)
+      const curtain = new THREE.Mesh(curtainGeo, mat.clone())
+      curtain.position.set(5.42, 2.0, 0.5 + cs * 0.72)
+      scene.add(curtain); objects.push(curtain)
+    }
+
+    // Chandelier
+    const crodGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.7, 6)
+    const crod = new THREE.Mesh(crodGeo, mat.clone())
+    crod.position.set(0, 4.65, -0.5)
+    scene.add(crod); objects.push(crod)
+
+    const cbaseGeo = new THREE.CylinderGeometry(0.35, 0.3, 0.12, 12)
+    const cbase = new THREE.Mesh(cbaseGeo, mat.clone())
+    cbase.position.set(0, 4.24, -0.5)
+    scene.add(cbase); objects.push(cbase)
+
+    for (let ca = 0; ca < 6; ca++) {
+      const angle = (ca / 6) * Math.PI * 2
+      const armOutGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.38, 5)
+      const armOut = new THREE.Mesh(armOutGeo, mat.clone())
+      armOut.rotation.z = Math.PI / 2
+      armOut.position.set(Math.cos(angle) * 0.19, 4.22, -0.5 + Math.sin(angle) * 0.19)
+      scene.add(armOut); objects.push(armOut)
+
+      const cCandleGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.1, 6)
+      const cCandle = new THREE.Mesh(cCandleGeo, mat.clone())
+      cCandle.position.set(Math.cos(angle) * 0.34, 4.18, -0.5 + Math.sin(angle) * 0.34)
+      scene.add(cCandle); objects.push(cCandle)
+    }
+
+    const chandelierLight = new THREE.PointLight(0xffd080, 0.8, 8)
+    chandelierLight.position.set(0, 4.1, -0.5)
+    scene.add(chandelierLight); objects.push(chandelierLight)
+
+    // Wine glass on coffee table
+    const wineGeo = new THREE.CylinderGeometry(0.045, 0.01, 0.18, 8)
+    const wine = new THREE.Mesh(wineGeo, mat.clone())
+    wine.position.set(0.2, 0.55, 1.55)
+    scene.add(wine); objects.push(wine)
+
+    const wineBowlGeo = new THREE.SphereGeometry(0.055, 8, 6)
+    const wineBowl = new THREE.Mesh(wineBowlGeo, mat.clone())
+    wineBowl.position.set(0.2, 0.66, 1.55)
+    scene.add(wineBowl); objects.push(wineBowl)
+
     // Couch silhouette
     const couchParts = [
       { w: 3.2, h: 0.4, d: 1.0, x: 0, y: 0.2, z: 2.2 },    // seat

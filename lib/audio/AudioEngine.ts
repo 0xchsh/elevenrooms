@@ -85,8 +85,10 @@ export class AudioEngine {
   private startLayerLoop(name: SceneName, layerIndex: number, buf: AudioBuffer) {
     const layerId = `${name}-${layerIndex}`
 
+    const config = AUDIO_CONFIG[name][layerIndex]
+    const baseGain = config.baseGain ?? 1
     const outputGain = this.ctx.createGain()
-    outputGain.gain.value = layerIndex < this.currentLayerStep ? 1 : 0
+    outputGain.gain.value = layerIndex < this.currentLayerStep ? baseGain : 0
     outputGain.connect(this.masterGain)
 
     const state: LayerState = { buf, outputGain, activeSources: [], nextTimer: null }
@@ -196,11 +198,12 @@ export class AudioEngine {
       if (!state) return
 
       const active = i < step
+      const baseGain = layer.baseGain ?? 1
       if (layer.intermittent) {
         if (!active) state.outputGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.3)
         // Re-activation is handled naturally by the next scheduled burst
       } else {
-        state.outputGain.gain.setTargetAtTime(active ? 1 : 0, this.ctx.currentTime, 0.3)
+        state.outputGain.gain.setTargetAtTime(active ? baseGain : 0, this.ctx.currentTime, 0.3)
       }
     })
   }

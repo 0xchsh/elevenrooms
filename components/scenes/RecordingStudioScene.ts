@@ -4,6 +4,8 @@ import type { SceneModule } from '@/lib/three/types'
 export function createRecordingStudioScene(): SceneModule {
   const objects: THREE.Object3D[] = []
   const vuBars: THREE.Mesh[] = []
+  const ledLights: { mesh: THREE.Mesh; mat: THREE.MeshLambertMaterial; phase: number }[] = []
+  let screenGlowLight: THREE.PointLight | null = null
   let camera: THREE.PerspectiveCamera | null = null
 
   function init(scene: THREE.Scene, cam: THREE.PerspectiveCamera) {
@@ -328,6 +330,154 @@ export function createRecordingStudioScene(): SceneModule {
     scene.add(notebook)
     objects.push(notebook)
 
+    // Outboard gear rack — left side (tall cabinet with stacked rack units)
+    const rackCabinetGeo = new THREE.BoxGeometry(0.55, 2.0, 0.45)
+    const rackCabinet = new THREE.Mesh(rackCabinetGeo, mat.clone())
+    rackCabinet.position.set(-5.8, 1.0, -0.2)
+    scene.add(rackCabinet)
+    objects.push(rackCabinet)
+
+    for (let ru = 0; ru < 8; ru++) {
+      const unitGeo = new THREE.BoxGeometry(0.5, 0.2, 0.44)
+      const unitMat = new THREE.MeshLambertMaterial({ color: 0x1a1a1c })
+      const unit = new THREE.Mesh(unitGeo, unitMat)
+      unit.position.set(-5.8, 0.14 + ru * 0.23, -0.2)
+      scene.add(unit)
+      objects.push(unit)
+
+      // LED indicator on each unit
+      const ledGeo = new THREE.BoxGeometry(0.04, 0.04, 0.01)
+      const ledColors = [0x003300, 0x002200, 0x220000, 0x222200]
+      const ledMat = new THREE.MeshLambertMaterial({
+        color: 0xffffff, emissive: ledColors[ru % 4], emissiveIntensity: 1.0
+      })
+      const led = new THREE.Mesh(ledGeo, ledMat)
+      led.position.set(-5.56, 0.14 + ru * 0.23, -0.0)
+      scene.add(led)
+      objects.push(led)
+      ledLights.push({ mesh: led, mat: ledMat, phase: ru * 0.9 + 1.0 })
+    }
+
+    // Second rack — right side
+    const rackCabinet2Geo = new THREE.BoxGeometry(0.55, 1.6, 0.45)
+    const rackCabinet2 = new THREE.Mesh(rackCabinet2Geo, mat.clone())
+    rackCabinet2.position.set(5.8, 0.8, -0.2)
+    scene.add(rackCabinet2)
+    objects.push(rackCabinet2)
+
+    for (let ru = 0; ru < 6; ru++) {
+      const unitGeo = new THREE.BoxGeometry(0.5, 0.2, 0.44)
+      const unitMat = new THREE.MeshLambertMaterial({ color: 0x1c1c1e })
+      const unit = new THREE.Mesh(unitGeo, unitMat)
+      unit.position.set(5.8, 0.14 + ru * 0.23, -0.2)
+      scene.add(unit)
+      objects.push(unit)
+
+      const ledGeo = new THREE.BoxGeometry(0.04, 0.04, 0.01)
+      const ledMat = new THREE.MeshLambertMaterial({
+        color: 0xffffff, emissive: 0x002200, emissiveIntensity: 1.0
+      })
+      const led = new THREE.Mesh(ledGeo, ledMat)
+      led.position.set(6.04, 0.14 + ru * 0.23, -0.0)
+      scene.add(led)
+      objects.push(led)
+      ledLights.push({ mesh: led, mat: ledMat, phase: ru * 1.1 + 2.5 })
+    }
+
+    // Studio couch / sofa behind engineer (visible from front camera angle)
+    const sofaBaseGeo = new THREE.BoxGeometry(2.4, 0.3, 0.8)
+    const sofaBase = new THREE.Mesh(sofaBaseGeo, mat.clone())
+    sofaBase.position.set(0, 0.36, 5.0)
+    scene.add(sofaBase)
+    objects.push(sofaBase)
+
+    const sofaBackGeo = new THREE.BoxGeometry(2.4, 0.6, 0.15)
+    const sofaBack = new THREE.Mesh(sofaBackGeo, mat.clone())
+    sofaBack.position.set(0, 0.81, 5.35)
+    scene.add(sofaBack)
+    objects.push(sofaBack)
+
+    for (let arm = -1; arm <= 1; arm += 2) {
+      const armGeo = new THREE.BoxGeometry(0.18, 0.45, 0.8)
+      const armMesh = new THREE.Mesh(armGeo, mat.clone())
+      armMesh.position.set(arm * 1.29, 0.57, 5.0)
+      scene.add(armMesh)
+      objects.push(armMesh)
+    }
+
+    // Recording booth window — glowing glass panel behind/above the console
+    const boothWindowGeo = new THREE.PlaneGeometry(3.2, 1.6)
+    const boothWindowMat = new THREE.MeshLambertMaterial({
+      color: 0xffffff, emissive: 0x0a1a0a, emissiveIntensity: 0.6,
+      transparent: true, opacity: 0.6
+    })
+    const boothWindow = new THREE.Mesh(boothWindowGeo, boothWindowMat)
+    boothWindow.position.set(-2.0, 2.4, -5.88)
+    scene.add(boothWindow)
+    objects.push(boothWindow)
+
+    // Window frame
+    const wFrameH = new THREE.BoxGeometry(3.4, 0.07, 0.06)
+    const wFrameV = new THREE.BoxGeometry(0.07, 1.7, 0.06)
+    for (let wy = -1; wy <= 1; wy += 2) {
+      const wfh = new THREE.Mesh(wFrameH, mat.clone())
+      wfh.position.set(-2.0, 2.4 + wy * 0.85, -5.85)
+      scene.add(wfh); objects.push(wfh)
+    }
+    for (let wx = -1; wx <= 1; wx += 2) {
+      const wfv = new THREE.Mesh(wFrameV, mat.clone())
+      wfv.position.set(-2.0 + wx * 1.7, 2.4, -5.85)
+      scene.add(wfv); objects.push(wfv)
+    }
+
+    // Mic inside booth (visible through window)
+    const boothMicGeo = new THREE.SphereGeometry(0.09, 8, 8)
+    const boothMicMat = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3 })
+    const boothMic = new THREE.Mesh(boothMicGeo, boothMicMat)
+    boothMic.position.set(-2.0, 2.4, -6.1)
+    scene.add(boothMic)
+    objects.push(boothMic)
+
+    // Patch bay on right side console extension
+    const patchBayGeo = new THREE.BoxGeometry(1.4, 0.55, 0.22)
+    const patchBay = new THREE.Mesh(patchBayGeo, mat.clone())
+    patchBay.position.set(3.6, 1.3, -0.8)
+    patchBay.rotation.y = -Math.PI / 8
+    scene.add(patchBay)
+    objects.push(patchBay)
+
+    // Patch bay rows of jacks
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 8; col++) {
+        const jackGeo = new THREE.CylinderGeometry(0.018, 0.018, 0.06, 6)
+        const jack = new THREE.Mesh(jackGeo, new THREE.MeshLambertMaterial({ color: 0x181818 }))
+        jack.position.set(3.2 + col * 0.165, 1.12 + row * 0.16, -0.7)
+        jack.rotation.x = Math.PI / 2
+        scene.add(jack)
+        objects.push(jack)
+      }
+    }
+
+    // Overhead lamp angled toward console
+    const lampArmGeo = new THREE.CylinderGeometry(0.02, 0.02, 1.2, 6)
+    const lampArm = new THREE.Mesh(lampArmGeo, mat.clone())
+    lampArm.position.set(-2.5, 3.8, 0.8)
+    lampArm.rotation.z = 0.5
+    scene.add(lampArm)
+    objects.push(lampArm)
+
+    const lampShadeGeo = new THREE.CylinderGeometry(0.04, 0.18, 0.22, 10)
+    const lampShadeMat = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0xfff0c0, emissiveIntensity: 0.4 })
+    const lampShade = new THREE.Mesh(lampShadeGeo, lampShadeMat)
+    lampShade.position.set(-1.95, 3.25, 1.15)
+    scene.add(lampShade)
+    objects.push(lampShade)
+
+    const warmLight = new THREE.PointLight(0xffd080, 1.2, 5)
+    warmLight.position.set(-1.95, 3.1, 1.1)
+    scene.add(warmLight)
+    objects.push(warmLight)
+
     cam.position.set(0, 1.8, 7)
     cam.lookAt(0, 1.2, 0)
   }
@@ -339,6 +489,12 @@ export function createRecordingStudioScene(): SceneModule {
     camera.position.x = Math.sin(time * 0.1) * 0.5
     camera.position.y = 1.8 + Math.sin(time * 0.07) * 0.08
     camera.lookAt(0, 1.2, 0)
+
+    // LED indicators pulse
+    ledLights.forEach(({ mat: ledMat, phase }) => {
+      const on = Math.sin(time * 2.1 + phase) > 0.3
+      ledMat.emissiveIntensity = on ? 1.0 : 0.15
+    })
 
     // VU meters animate up/down with staggered sin waves
     vuBars.forEach((bar, i) => {
@@ -371,6 +527,7 @@ export function createRecordingStudioScene(): SceneModule {
     })
     objects.length = 0
     vuBars.length = 0
+    ledLights.length = 0
     camera = null
   }
 

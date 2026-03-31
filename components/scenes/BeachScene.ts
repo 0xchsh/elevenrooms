@@ -12,13 +12,13 @@ export function createBeachScene(): SceneModule {
   function init(scene: THREE.Scene, cam: THREE.PerspectiveCamera) {
     camera = cam
 
-    scene.fog = new THREE.FogExp2(0xb0d8f0, 0.025)
+    scene.fog = new THREE.FogExp2(0x3a6080, 0.022)
 
-    const ambient = new THREE.AmbientLight(0xfff5cc, 0.6)
+    const ambient = new THREE.AmbientLight(0xfff5cc, 0.25)
     scene.add(ambient)
 
-    const sunLight = new THREE.DirectionalLight(0xfff0a0, 1.2)
-    sunLight.position.set(3, 10, 5)
+    const sunLight = new THREE.DirectionalLight(0xfff0a0, 2.2)
+    sunLight.position.set(5, 14, 4)
     scene.add(sunLight)
 
     const mat = new THREE.MeshLambertMaterial({ color: 0xffffff })

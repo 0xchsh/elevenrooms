@@ -1,12 +1,11 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { ChevronUp, X } from 'lucide-react'
 import {
   Buildings, Coffee, Leaf, Flame, BookOpen, Scissors, Rocket, Waves,
   SpeakerHigh, SpeakerSlash, DiceFive, Info,
   Barbell, TennisBall, BowlFood, Umbrella, MusicNotes, Headphones,
-  Cards, WashingMachine,
+  PokerChip, WashingMachine, CaretUp, X,
 } from '@phosphor-icons/react'
 import type { SceneName, LayerStep } from '@/lib/three/types'
 import { SCENE_COLORS } from '@/lib/three/asciiRenderer'
@@ -34,7 +33,7 @@ const SCENE_META: Record<SceneName, { label: string; Icon: React.ElementType }> 
   barbershop:      { label: 'Barbershop',   Icon: Scissors       },
   spacestation:    { label: 'Space',        Icon: Rocket         },
   underwater:      { label: 'Underwater',   Icon: Waves          },
-  casino:          { label: 'Casino',       Icon: Cards          },
+  casino:          { label: 'Casino',       Icon: PokerChip      },
   gym:             { label: 'Gym',          Icon: Barbell        },
   tennis:          { label: 'Tennis',       Icon: TennisBall     },
   ramen:           { label: 'Ramen',        Icon: BowlFood       },
@@ -44,29 +43,15 @@ const SCENE_META: Record<SceneName, { label: string; Icon: React.ElementType }> 
   recordingstudio: { label: 'Studio',       Icon: Headphones     },
 }
 
-const GRAY = 'rgba(255,255,255,0.28)'
-const GRAY_DIM = 'rgba(255,255,255,0.12)'
-
-function crtBox(tint: string, active = false) {
-  return {
-    background: active ? `${tint}0f` : '#050505',
-    border: `1px solid ${active ? tint + '66' : 'rgba(255,255,255,0.08)'}`,
-    borderRadius: 2,
-  } as const
-}
-
-const SCANLINES: React.CSSProperties = {
-  position: 'absolute',
-  inset: 0,
-  background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px)',
-  pointerEvents: 'none',
-  zIndex: 10,
-  borderRadius: 2,
-}
+const CREAM = 'rgba(255,255,255,0.08)'
+const INK = 'rgba(255,255,255,0.9)'
+const INK_DIM = 'rgba(255,255,255,0.55)'
+const DIVIDER = 'rgba(255,255,255,0.1)'
 
 const MONO: React.CSSProperties = {
-  fontFamily: "'JetBrains Mono', monospace",
-  letterSpacing: '0.1em',
+  fontFamily: "'Space Grotesk', sans-serif",
+  fontWeight: 400,
+  letterSpacing: '0.05em',
 }
 
 export default function ControlBar({
@@ -81,14 +66,28 @@ export default function ControlBar({
   const [pickerVisible, setPickerVisible] = useState(false)
   const [infoOpen, setInfoOpen] = useState(false)
   const [infoVisible, setInfoVisible] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const infoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pickerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const tint = SCENE_COLORS[scene]
   const { label: activeLabel, Icon: ActiveIcon } = SCENE_META[scene]
 
-  // Picker fade
   useEffect(() => {
-    if (pickerOpen) requestAnimationFrame(() => setPickerVisible(true))
-    else setPickerVisible(false)
+    const check = () => setIsMobile(window.innerWidth < 640)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+
+  // Picker fade in/out
+  useEffect(() => {
+    if (pickerOpen) {
+      if (pickerTimerRef.current) clearTimeout(pickerTimerRef.current)
+      requestAnimationFrame(() => requestAnimationFrame(() => setPickerVisible(true)))
+    } else {
+      setPickerVisible(false)
+    }
   }, [pickerOpen])
 
   // Info modal fade in/out
@@ -102,9 +101,15 @@ export default function ControlBar({
     infoTimerRef.current = setTimeout(() => setInfoOpen(false), 250)
   }
 
+  function closePicker() {
+    setPickerVisible(false)
+    if (pickerTimerRef.current) clearTimeout(pickerTimerRef.current)
+    pickerTimerRef.current = setTimeout(() => setPickerOpen(false), 200)
+  }
+
   function selectScene(s: SceneName) {
     onSceneChange(s)
-    setPickerOpen(false)
+    closePicker()
   }
 
   return (
@@ -112,39 +117,40 @@ export default function ControlBar({
       {/* Room picker popover */}
       {pickerOpen && (
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setPickerOpen(false)} />
+          <div className="fixed inset-0 z-40" onClick={closePicker} />
           <div
             className="fixed bottom-24 left-1/2 z-50 p-3 grid grid-cols-4 gap-2"
             style={{
-              ...crtBox(tint, false),
+              background: 'rgba(255,255,255,0.07)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 16,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
               minWidth: 340,
-              border: `1px solid rgba(255,255,255,0.1)`,
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
               opacity: pickerVisible ? 1 : 0,
               transform: `translateX(-50%) translateY(${pickerVisible ? 0 : 8}px)`,
               transition: 'opacity 0.15s ease, transform 0.15s ease',
               position: 'fixed',
             }}
           >
-            <div style={SCANLINES} />
             {SCENES.map(s => {
               const { label, Icon } = SCENE_META[s]
               const active = s === scene
-              const c = active ? SCENE_COLORS[s] : GRAY
               return (
                 <button
                   key={s}
                   onClick={() => selectScene(s)}
-                  className={`scene-picker-btn flex flex-col items-center gap-1.5 transition-all duration-150 relative${active ? '' : ''}`}
+                  className="scene-picker-btn flex flex-col items-center gap-1.5 transition-all duration-150 relative"
                   style={{
                     padding: '10px 8px',
-                    background: active ? `${SCENE_COLORS[s]}0f` : 'transparent',
-                    border: `1px solid ${active ? SCENE_COLORS[s] + '55' : 'rgba(255,255,255,0.06)'}`,
-                    borderRadius: 2,
-                    zIndex: 1,
+                    background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
+                    border: 'none',
+                    borderRadius: 8,
                   }}
                 >
-                  <Icon size={20} weight="fill" style={{ color: c }} />
-                  <span style={{ ...MONO, fontSize: 8, color: active ? SCENE_COLORS[s] : GRAY_DIM, textTransform: 'uppercase' }}>
+                  <Icon size={26} weight="fill" style={{ color: active ? SCENE_COLORS[s] : INK_DIM }} />
+                  <span style={{ ...MONO, fontSize: 14, color: active ? SCENE_COLORS[s] : INK_DIM, textTransform: 'uppercase' }}>
                     {label}
                   </span>
                 </button>
@@ -167,54 +173,64 @@ export default function ControlBar({
             onClick={closeInfo}
           />
           <div
-            className="fixed top-1/2 left-1/2 z-50 p-8"
+            className="fixed top-1/2 left-1/2 z-50"
             style={{
-              ...crtBox(tint, false),
-              border: `1px solid ${tint}33`,
-              width: 380,
-              maxWidth: 'calc(100vw - 48px)',
+              background: 'rgba(255,255,255,0.07)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              borderRadius: 16,
+              boxShadow: '0 8px 40px rgba(0,0,0,0.4)',
+              width: 520,
+              maxWidth: 'calc(100vw - 40px)',
+              padding: '48px 52px 44px',
               opacity: infoVisible ? 1 : 0,
-              transform: `translate(-50%, ${infoVisible ? '-50%' : 'calc(-50% + 10px)'})`,
+              transform: `translate(-50%, ${infoVisible ? '-50%' : 'calc(-50% + 12px)'})`,
               transition: 'opacity 0.25s ease, transform 0.25s ease',
             }}
           >
-            <div style={SCANLINES} />
             <button
               onClick={closeInfo}
-              className="absolute top-4 right-4 z-10 transition-opacity hover:opacity-80"
-              style={{ opacity: 0.4 }}
+              className="absolute top-5 right-5 transition-opacity hover:opacity-60"
+              style={{ opacity: 0.25 }}
+              aria-label="Close"
             >
-              <X size={14} style={{ color: tint }} />
+              <X size={20} style={{ color: INK }} />
             </button>
-            <div style={{ borderBottom: `1px solid ${tint}22`, paddingBottom: 10, marginBottom: 16 }}>
-              <span style={{ ...MONO, fontSize: 8, color: GRAY_DIM, textTransform: 'uppercase' }}>
-                // ELEVEN_ROOMS.SYS
-              </span>
-            </div>
-            <p style={{ ...MONO, fontSize: 11, lineHeight: 1.9, color: 'rgba(255,255,255,0.4)' }}>
-              Eleven Rooms is an ambient soundscape experience. Choose a room, set your sound layers, and let the atmosphere carry you. Each room is a living ASCII world — part visual, part sonic. Sounds are generated by ElevenLabs and layered in real time through the Web Audio API.
+
+            {/* Main body text */}
+            <p style={{ ...MONO, fontSize: 14, lineHeight: 1.9, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', margin: 0 }}>
+              <span style={{ color: '#ffffff', fontWeight: 700 }}>ELEVEN ROOMS</span>
+              {' '}IS AN AMBIENT SOUNDSCAPE EXPERIENCE. CHOOSE A ROOM, TOGGLE THE LAYERS OF SOUND ON AND OFF, AND LET THE ATMOSPHERE CARRY YOU. EACH ROOM IS A SMALL ASCII WORLD — PART VISUAL, PART SONIC.
             </p>
-            <div style={{ marginTop: 20, borderTop: `1px solid rgba(255,255,255,0.06)`, paddingTop: 14 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                <span style={{ ...MONO, fontSize: 8, color: GRAY_DIM, textTransform: 'uppercase' }}>
-                  {SCENES.length} ROOMS · 4 LAYERS EACH
-                </span>
-                <span style={{ ...MONO, fontSize: 8, color: GRAY_DIM }}>USE HEADPHONES</span>
-              </div>
-              <div style={{ borderTop: `1px solid rgba(255,255,255,0.04)`, paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <span style={{ ...MONO, fontSize: 8, color: GRAY_DIM }}>
-                  A PROJECT BY{' '}
-                  <a href="https://ch.sh" target="_blank" rel="noopener noreferrer" style={{ color: tint, textDecoration: 'none' }}>
-                    CH.SH
-                  </a>
-                </span>
-                <span style={{ ...MONO, fontSize: 8, color: GRAY_DIM }}>
-                  POWERED BY{' '}
-                  <span style={{ color: 'rgba(255,255,255,0.3)' }}>ELEVENLABS API</span>
-                  {' '}· SUBMITTED FOR{' '}
-                  <span style={{ color: 'rgba(255,255,255,0.3)' }}>SILLYHACKS</span>
-                </span>
-              </div>
+
+            {/* Credits */}
+            <div style={{ marginTop: 40, display: 'flex', flexDirection: 'column', gap: 8, position: 'relative' }}>
+              <p style={{ ...MONO, fontSize: 14, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: 0 }}>
+                A PROJECT BY{' '}
+                <a href="https://ch.sh" target="_blank" rel="noopener noreferrer" className="info-link" style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>
+                  CH.SH
+                </a>
+              </p>
+              <p style={{ ...MONO, fontSize: 14, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: 0 }}>
+                POWERED BY{' '}
+                <a href="https://elevenlabs.io" target="_blank" rel="noopener noreferrer" className="info-link" style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 500, textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>ELEVENLABS</a>
+              </p>
+              <p style={{ ...MONO, fontSize: 14, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: 0 }}>
+                SUBMITTED FOR{' '}
+                  <a href="https://sillyhacks.nyc" target="_blank" rel="noopener noreferrer" className="info-link" style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 500, textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px' }}>SILLY HACKS</a>
+              </p>
+              <a href="https://sillyhacks.nyc" target="_blank" rel="noopener noreferrer" style={{ position: 'absolute', right: 0, bottom: 0 }}>
+                <div className="silly-hacks-wrapper">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/sillyhacks.png"
+                    alt="Silly Hacks"
+                    className="silly-hacks-img"
+                    style={{ height: 80, width: 'auto' }}
+                  />
+                </div>
+              </a>
             </div>
           </div>
         </>
@@ -222,47 +238,47 @@ export default function ControlBar({
 
       {/* Main dock bar */}
       <div
-        className="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-0 z-30"
+        className="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center z-30"
         style={{
-          background: '#050505',
-          border: `1px solid ${tint}33`,
-          borderRadius: 2,
+          background: 'rgba(255,255,255,0.07)',
+          border: '1px solid rgba(255,255,255,0.14)',
+          borderRadius: 9999,
+          boxShadow: '0 2px 12px rgba(0,0,0,0.18), 0 1px 0 rgba(255,255,255,0.08) inset',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
           height: 52,
+          paddingRight: 4,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
         }}
       >
-        <div style={SCANLINES} />
-
-        {/* Top edge accent */}
-        <div
-          className="absolute top-0 left-0 right-0 pointer-events-none z-10"
-          style={{ height: 1, background: `linear-gradient(90deg, transparent, ${tint}55 20%, ${tint}55 80%, transparent)` }}
-        />
-
         {/* Room selector */}
         <button
-          onClick={() => setPickerOpen(v => !v)}
-          className="flex items-center gap-2 relative z-10 transition-all duration-150"
+          onClick={() => pickerOpen ? closePicker() : setPickerOpen(true)}
+          className="flex items-center gap-2 transition-all duration-150 hover:opacity-70"
           style={{
             height: '100%',
-            padding: '0 20px',
-            borderRight: `1px solid rgba(255,255,255,0.08)`,
-            background: pickerOpen ? `${tint}0f` : 'transparent',
+            padding: isMobile ? '0 14px' : '0 18px',
+            borderRight: `1px solid ${DIVIDER}`,
+            background: pickerOpen ? 'rgba(255,255,255,0.08)' : 'transparent',
           }}
         >
-          <ActiveIcon size={16} weight="fill" style={{ color: tint }} />
-          <span style={{ ...MONO, fontSize: 11, color: tint, textTransform: 'uppercase' }}>
-            {activeLabel}
-          </span>
-          <ChevronUp size={10} style={{ color: GRAY_DIM, transform: pickerOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s ease' }} />
+          <ActiveIcon size={16} weight="fill" style={{ color: tint, flexShrink: 0 }} />
+          {!isMobile && (
+            <>
+              <span style={{ ...MONO, fontSize: 14, color: INK, textTransform: 'uppercase' }}>
+                {activeLabel}
+              </span>
+              <CaretUp size={14} style={{ color: INK_DIM, transform: pickerOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s ease' }} />
+            </>
+          )}
         </button>
 
-        <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.08)', flexShrink: 0 }} />
+        <div style={{ width: 1, height: 26, background: DIVIDER, flexShrink: 0 }} />
 
         {/* Layer slider */}
-        <div className="relative z-10 px-6">
-          <LayerSlider value={layerStep} onChange={onLayerStepChange} tint={tint} />
+        <div style={{ padding: isMobile ? '0 14px' : '0 24px' }}>
+          <LayerSlider value={layerStep} onChange={onLayerStepChange} tint={tint} isMobile={isMobile} />
         </div>
 
         {/* Random room */}
@@ -271,53 +287,56 @@ export default function ControlBar({
             const others = SCENES.filter(s => s !== scene)
             selectScene(others[Math.floor(Math.random() * others.length)])
           }}
-          className="relative z-10 flex items-center justify-center transition-opacity duration-150 hover:opacity-60"
-          style={{ height: '100%', padding: '0 14px', borderLeft: `1px solid rgba(255,255,255,0.08)`, borderRight: `1px solid rgba(255,255,255,0.08)` }}
+          className="flex items-center justify-center transition-opacity duration-150 hover:opacity-50"
+          style={{ height: '100%', padding: '0 14px', borderLeft: `1px solid ${DIVIDER}`, borderRight: `1px solid ${DIVIDER}` }}
           title="Random room"
+          aria-label="Random room"
         >
-          <DiceFive size={18} weight="fill" style={{ color: GRAY }} />
+          <DiceFive size={17} weight="fill" style={{ color: INK_DIM }} />
         </button>
 
         {/* Mute */}
         <button
           onClick={() => onVolumeChange(volume === 0 ? 0.8 : 0)}
-          className="relative z-10 flex items-center justify-center transition-opacity duration-150 hover:opacity-60"
-          style={{ height: '100%', padding: '0 14px', borderRight: `1px solid rgba(255,255,255,0.08)` }}
+          className="flex items-center justify-center transition-opacity duration-150 hover:opacity-50"
+          style={{ height: '100%', padding: '0 14px', borderRight: `1px solid ${DIVIDER}` }}
           title={volume === 0 ? 'Unmute' : 'Mute'}
+          aria-label={volume === 0 ? 'Unmute' : 'Mute'}
         >
           {volume === 0
-            ? <SpeakerSlash size={18} weight="fill" style={{ color: GRAY_DIM }} />
-            : <SpeakerHigh size={18} weight="fill" style={{ color: tint }} />
+            ? <SpeakerSlash size={17} weight="fill" style={{ color: INK_DIM }} />
+            : <SpeakerHigh size={17} weight="fill" style={{ color: INK }} />
           }
         </button>
 
         {/* Info */}
         <button
           onClick={openInfo}
-          className="relative z-10 flex items-center justify-center transition-opacity duration-150 hover:opacity-60"
+          className="flex items-center justify-center transition-opacity duration-150 hover:opacity-50"
           style={{ height: '100%', padding: '0 14px' }}
           title="Info"
+          aria-label="Info"
         >
-          <Info size={18} weight="fill" style={{ color: GRAY }} />
+          <Info size={17} weight="fill" style={{ color: INK_DIM }} />
         </button>
       </div>
     </>
   )
 }
 
-function LayerSlider({ value, onChange, tint }: { value: LayerStep; onChange: (v: LayerStep) => void; tint: string }) {
+function LayerSlider({ value, onChange, tint, isMobile }: { value: LayerStep; onChange: (v: LayerStep) => void; tint: string; isMobile?: boolean }) {
   const pct = (value - 1) / 3
   return (
-    <div className="relative flex items-center" style={{ width: 110, height: 28, flexShrink: 0 }}>
-      <div className="absolute" style={{ left: 0, right: 0, height: 2, background: 'rgba(255,255,255,0.08)' }} />
-      <div className="absolute" style={{ left: 0, width: `${pct * 100}%`, height: 2, background: tint, transition: 'width 0.15s ease' }} />
-      {([1, 2, 3] as const).map(n => {
+    <div className="relative flex items-center" style={{ width: isMobile ? 80 : 110, height: 28, flexShrink: 0 }}>
+      <div className="absolute" style={{ left: 0, right: 0, height: 2, background: 'rgba(255,255,255,0.25)' }} />
+      <div className="absolute" style={{ left: 0, width: `${pct * 100}%`, height: 2, background: 'rgba(255,255,255,0.7)', transition: 'width 0.15s ease' }} />
+      {([1, 2, 3, 4] as const).map(n => {
         const filled = n <= value
         return (
           <div key={n} className="absolute pointer-events-none" style={{
-            left: `calc(${((n - 1) / 3) * 100}% - 3px)`,
+            left: `calc(${((n - 1) / 3) * 100}% - ${n === 4 ? 6 : 3}px)`,
             width: 6, height: 6,
-            background: filled ? tint : 'rgba(255,255,255,0.12)',
+            background: filled ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.3)',
             zIndex: 1,
             transition: 'background 0.15s ease',
           }} />
@@ -326,8 +345,8 @@ function LayerSlider({ value, onChange, tint }: { value: LayerStep; onChange: (v
       <div className="absolute pointer-events-none" style={{
         left: `calc(${pct * 100}% - 8px)`,
         width: 16, height: 16,
-        background: '#050505',
-        border: `1.5px solid ${tint}`,
+        background: 'rgba(255,255,255,0.9)',
+        borderRadius: '50%',
         zIndex: 2,
         transition: 'left 0.15s ease',
       }} />

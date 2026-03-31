@@ -39,23 +39,23 @@ const SOUNDS: SoundEntry[] = [
   { scene: 'nature', layer: 3, type: 'sfx', prompt: 'babbling brook, stream water flowing over rocks, gentle river ambience' },
   { scene: 'nature', layer: 4, type: 'sfx', prompt: 'crickets and night insects chirping, evening nature sounds, cicadas' },
 
-  // ── Fireplace ─────────────────────────────────────────────────────────────
-  { scene: 'fireplace', layer: 1, type: 'sfx',   prompt: 'wood fire crackling and popping, cozy fireplace ambience, burning logs' },
-  { scene: 'fireplace', layer: 2, type: 'music', prompt: 'gentle solo piano, slow introspective melody, warm cozy classical feel, soft and intimate, no percussion' },
-  { scene: 'fireplace', layer: 3, type: 'sfx',   prompt: 'wood logs popping and settling in a fire, occasional wood crack sounds' },
-  { scene: 'fireplace', layer: 4, type: 'sfx',   prompt: 'quiet night ambience, distant owl hooting, peaceful late night sounds' },
+// ── Fireplace ─────────────────────────────────────────────────────────────
+{ scene: 'fireplace', layer: 1, type: 'sfx',   prompt: 'wood fire crackling and popping, cozy fireplace ambience, burning logs, warm close recording' },
+{ scene: 'fireplace', layer: 2, type: 'music', prompt: 'gentle solo piano, slow introspective melody, warm cozy classical feel, soft and intimate, no percussion' },
+{ scene: 'fireplace', layer: 3, type: 'sfx',   prompt: 'old house settling sounds, quiet creaks, warm interior room tone with slight wind outside windows' },
+{ scene: 'fireplace', layer: 4, type: 'sfx',   prompt: 'quiet winter night ambience, muffled wind through walls, distant owl hoot, peaceful late night exterior heard from indoors' },
 
-  // ── Library ───────────────────────────────────────────────────────────────
-  { scene: 'library', layer: 1, type: 'sfx',   prompt: 'quiet library ambience, HVAC hum, very quiet indoor room tone' },
-  { scene: 'library', layer: 2, type: 'sfx',   prompt: 'turning book pages, quiet page flips, library book sounds' },
-  { scene: 'library', layer: 3, type: 'music', prompt: 'soft classical chamber music, quiet study room background, gentle strings and piano, slow tempo, peaceful and focused' },
-  { scene: 'library', layer: 4, type: 'sfx',   prompt: 'distant footsteps on hardwood floor, quiet library movement, hushed whispers' },
+// ── Library ───────────────────────────────────────────────────────────────
+{ scene: 'library', layer: 1, type: 'sfx',   prompt: 'quiet library ambience, HVAC air vent hum, very quiet indoor room tone, large open room' },
+{ scene: 'library', layer: 2, type: 'sfx',   prompt: 'turning book pages slowly, quiet page flips, occasional pen writing on paper' },
+{ scene: 'library', layer: 3, type: 'sfx',   prompt: 'distant footsteps on hardwood floor, quiet chair creaks, occasional soft cough, hushed library atmosphere' },
+{ scene: 'library', layer: 4, type: 'music', prompt: 'extremely faint classical piano from another room, muffled through walls, barely audible background music, distant and warm' },
 
-  // ── Barbershop ────────────────────────────────────────────────────────────
-  { scene: 'barbershop', layer: 1, type: 'music', prompt: 'vintage AM radio jazz, classic 1950s barbershop jazz, swinging big band, warm lo-fi radio quality, upbeat and nostalgic' },
-  { scene: 'barbershop', layer: 2, type: 'sfx',   prompt: 'electric hair clippers buzzing, barbershop clippers sound, hair trimmer ambience' },
-  { scene: 'barbershop', layer: 3, type: 'sfx',   prompt: 'barbershop conversation, customers chatting, friendly barbershop talk' },
-  { scene: 'barbershop', layer: 4, type: 'sfx',   prompt: 'shop door bell chime, door opening bell, occasional door entry chime' },
+// ── Barbershop ────────────────────────────────────────────────────────────
+{ scene: 'barbershop', layer: 1, type: 'music', prompt: 'vintage AM radio jazz, classic 1950s barbershop jazz, swinging big band, warm lo-fi radio quality, upbeat and nostalgic' },
+{ scene: 'barbershop', layer: 2, type: 'sfx',   prompt: 'hair scissors snipping, electric clippers buzzing intermittently, barbershop cutting sounds, spray bottle spritz' },
+{ scene: 'barbershop', layer: 3, type: 'sfx',   prompt: 'indistinct male voices talking, muffled friendly chatter, busy shop atmosphere, occasional laughter' },
+{ scene: 'barbershop', layer: 4, type: 'sfx',   prompt: 'shop door bell chime, cash register sounds, barber chair hydraulic pump, occasional door entry bell' },
 
   // ── Space Station ─────────────────────────────────────────────────────────
   { scene: 'spacestation', layer: 1, type: 'sfx', prompt: 'space station life support hum, spacecraft machinery ambient drone, deep mechanical hum' },
@@ -76,7 +76,7 @@ const SOUNDS: SoundEntry[] = [
   { scene: 'casino', layer: 4, type: 'sfx', prompt: 'casino crowd chatter, excited gamblers, cheering at a craps table, casino atmosphere' },
 
   // ── Gym ───────────────────────────────────────────────────────────────────
-  { scene: 'gym', layer: 1, type: 'music', prompt: 'high energy workout music, driving electronic beats, pump up fitness instrumental, heavy bass and synth, fast tempo 140 bpm' },
+  { scene: 'gym', layer: 1, type: 'music', prompt: 'aggressive trap rap instrumental, hard hitting 808 bass, trap hi-hats, dark gym workout beat, no vocals, heavy rap production 140 bpm' },
   { scene: 'gym', layer: 2, type: 'sfx',   prompt: 'gym cardio machines, treadmill running sounds, elliptical machine ambience' },
   { scene: 'gym', layer: 3, type: 'sfx',   prompt: 'weight plates clanking, dumbbells dropping, gym weight room sounds' },
   { scene: 'gym', layer: 4, type: 'sfx',   prompt: 'gym crowd, people exercising, workout grunts and breathing, fitness room ambience' },
@@ -111,11 +111,11 @@ const SOUNDS: SoundEntry[] = [
   { scene: 'club', layer: 3, type: 'sfx',   prompt: 'nightclub crowd, people dancing and cheering, club atmosphere crowd noise' },
   { scene: 'club', layer: 4, type: 'sfx',   prompt: 'crowd eruption at DJ bass drop, dance floor cheer, club crowd reaction' },
 
-  // ── Recording Studio ──────────────────────────────────────────────────────
-  { scene: 'recordingstudio', layer: 1, type: 'sfx',   prompt: 'recording studio room tone, quiet studio ambience, professional studio silence hum' },
-  { scene: 'recordingstudio', layer: 2, type: 'music', prompt: 'indie rock track playing through studio monitors, slightly muffled playback, rough mix in progress, guitar and drums' },
-  { scene: 'recordingstudio', layer: 3, type: 'sfx',   prompt: 'mixing console equipment hum, studio equipment sounds, professional audio gear ambience' },
-  { scene: 'recordingstudio', layer: 4, type: 'sfx',   prompt: 'musician recording a take, acoustic guitar or piano being recorded, studio session sounds' },
+// ── Recording Studio ──────────────────────────────────────────────────────
+{ scene: 'recordingstudio', layer: 1, type: 'sfx',   prompt: 'recording studio room tone, dead quiet treated room, professional studio silence with faint equipment hum' },
+{ scene: 'recordingstudio', layer: 2, type: 'music', prompt: 'indie rock rough mix playing through studio monitors, slightly muffled nearfield speaker playback, guitar and drums, lo-fi monitor quality' },
+{ scene: 'recordingstudio', layer: 3, type: 'sfx',   prompt: 'mixing console button clicks, mouse clicks, office chair creaks on hard floor, studio control room movement' },
+{ scene: 'recordingstudio', layer: 4, type: 'sfx',   prompt: 'studio headphone bleed, faint talkback mic click, transport button press, tape machine or DAW playback sounds' },
 ]
 
 async function streamToBuffer(stream: AsyncIterable<Uint8Array>): Promise<Buffer> {

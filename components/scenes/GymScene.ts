@@ -352,6 +352,181 @@ export function createGymScene(): SceneModule {
     scene.add(tv)
     objects.push(tv)
 
+    // Second TV on back wall (emissive)
+    const tv2Geo = new THREE.BoxGeometry(1.8, 1.0, 0.06)
+    const tv2 = new THREE.Mesh(tv2Geo, new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x0a1a2a, emissiveIntensity: 0.9 }))
+    tv2.position.set(5, 3.8, -7.92)
+    scene.add(tv2)
+    objects.push(tv2)
+
+    // Spin bike row (center area, z=3 to 6)
+    for (let i = 0; i < 4; i++) {
+      const bx = -4.5 + i * 3
+      const bz = 4.5
+
+      // Frame body
+      const bikeBodyGeo = new THREE.BoxGeometry(0.1, 0.7, 0.85)
+      const bikeMat = new THREE.MeshLambertMaterial({ color: 0xffffff })
+      const bikeBody = new THREE.Mesh(bikeBodyGeo, bikeMat.clone())
+      bikeBody.position.set(bx, 0.55, bz)
+      scene.add(bikeBody); objects.push(bikeBody)
+
+      // Flywheel
+      const flywheelGeo = new THREE.CylinderGeometry(0.28, 0.28, 0.06, 14)
+      const flywheel = new THREE.Mesh(flywheelGeo, bikeMat.clone())
+      flywheel.rotation.z = Math.PI / 2
+      flywheel.position.set(bx, 0.55, bz - 0.38)
+      scene.add(flywheel); objects.push(flywheel)
+
+      // Seat post
+      const seatPostGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.55, 6)
+      const seatPost = new THREE.Mesh(seatPostGeo, bikeMat.clone())
+      seatPost.position.set(bx, 0.88, bz + 0.3)
+      scene.add(seatPost); objects.push(seatPost)
+
+      // Seat
+      const seatGeo = new THREE.BoxGeometry(0.18, 0.05, 0.28)
+      const seat = new THREE.Mesh(seatGeo, bikeMat.clone())
+      seat.position.set(bx, 1.14, bz + 0.3)
+      scene.add(seat); objects.push(seat)
+
+      // Handlebar post
+      const hbPostGeo = new THREE.CylinderGeometry(0.025, 0.025, 0.65, 6)
+      const hbPost = new THREE.Mesh(hbPostGeo, bikeMat.clone())
+      hbPost.position.set(bx, 0.92, bz - 0.22)
+      scene.add(hbPost); objects.push(hbPost)
+
+      // Handlebar
+      const hbGeo = new THREE.BoxGeometry(0.5, 0.04, 0.12)
+      const hb = new THREE.Mesh(hbGeo, bikeMat.clone())
+      hb.position.set(bx, 1.22, bz - 0.22)
+      scene.add(hb); objects.push(hb)
+
+      // Screen on handlebar
+      const bScreenGeo = new THREE.BoxGeometry(0.16, 0.12, 0.03)
+      const bScreenMat = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 0.3 })
+      const bScreen = new THREE.Mesh(bScreenGeo, bScreenMat)
+      bScreen.position.set(bx, 1.36, bz - 0.22)
+      scene.add(bScreen); objects.push(bScreen)
+    }
+
+    // Rowing machine row (z=6.5)
+    for (let i = 0; i < 3; i++) {
+      const rx = -3 + i * 3.2
+      const rz = 6.8
+
+      // Rail
+      const railGeo = new THREE.BoxGeometry(0.08, 0.06, 2.0)
+      const rMat = new THREE.MeshLambertMaterial({ color: 0xffffff })
+      const rail = new THREE.Mesh(railGeo, rMat.clone())
+      rail.position.set(rx, 0.18, rz)
+      scene.add(rail); objects.push(rail)
+
+      // Flywheel / resistance unit
+      const rFlywheelGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.14, 12)
+      const rFlywheel = new THREE.Mesh(rFlywheelGeo, rMat.clone())
+      rFlywheel.rotation.z = Math.PI / 2
+      rFlywheel.position.set(rx, 0.28, rz - 0.85)
+      scene.add(rFlywheel); objects.push(rFlywheel)
+
+      // Seat
+      const rSeatGeo = new THREE.BoxGeometry(0.22, 0.06, 0.2)
+      const rSeat = new THREE.Mesh(rSeatGeo, rMat.clone())
+      rSeat.position.set(rx, 0.24, rz + 0.2)
+      scene.add(rSeat); objects.push(rSeat)
+
+      // Handle
+      const rHandleGeo = new THREE.BoxGeometry(0.3, 0.04, 0.04)
+      const rHandle = new THREE.Mesh(rHandleGeo, rMat.clone())
+      rHandle.position.set(rx, 0.42, rz - 0.7)
+      scene.add(rHandle); objects.push(rHandle)
+
+      // Foot rests
+      for (let fs = -1; fs <= 1; fs += 2) {
+        const footGeo = new THREE.BoxGeometry(0.1, 0.06, 0.18)
+        const foot = new THREE.Mesh(footGeo, rMat.clone())
+        foot.position.set(rx + fs * 0.14, 0.22, rz - 0.15)
+        scene.add(foot); objects.push(foot)
+      }
+    }
+
+    // Pull-up rig / squat rack center (more dominant mid-scene piece)
+    const rigBaseY = 0
+    const rigX = 5
+    const rigZ = 2
+
+    // Upright posts (4 corner)
+    for (let px = -1; px <= 1; px += 2) {
+      for (let pz = -1; pz <= 1; pz += 2) {
+        const rigPostGeo = new THREE.BoxGeometry(0.08, 3.2, 0.08)
+        const rigPost = new THREE.Mesh(rigPostGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }))
+        rigPost.position.set(rigX + px * 0.7, rigBaseY + 1.6, rigZ + pz * 0.5)
+        scene.add(rigPost); objects.push(rigPost)
+      }
+    }
+    // Top bars
+    for (let pz = -1; pz <= 1; pz += 2) {
+      const topBarGeo = new THREE.BoxGeometry(1.6, 0.07, 0.07)
+      const topBar = new THREE.Mesh(topBarGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }))
+      topBar.position.set(rigX, rigBaseY + 3.2, rigZ + pz * 0.5)
+      scene.add(topBar); objects.push(topBar)
+    }
+    // Pull-up bar
+    const pullBarGeo = new THREE.CylinderGeometry(0.025, 0.025, 1.6, 8)
+    const pullBar = new THREE.Mesh(pullBarGeo, new THREE.MeshLambertMaterial({ color: 0xdddddd }))
+    pullBar.rotation.z = Math.PI / 2
+    pullBar.position.set(rigX, rigBaseY + 3.0, rigZ)
+    scene.add(pullBar); objects.push(pullBar)
+
+    // Weight plates hanging on rig side
+    for (let wp = 0; wp < 4; wp++) {
+      const wpGeo = new THREE.CylinderGeometry(0.2, 0.2, 0.05, 12)
+      const wpMesh = new THREE.Mesh(wpGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }))
+      wpMesh.position.set(rigX + 0.85, rigBaseY + 1.0 + wp * 0.26, rigZ - 0.5)
+      scene.add(wpMesh); objects.push(wpMesh)
+    }
+
+    // Gym mats on floor (visible rectangles)
+    const matPositions: [number, number, number][] = [
+      [-2, 0, 1.5], [1, 0, 1.5], [4, 0, 1.5],
+      [-2, 0.003, 3.0], [1, 0.003, 3.0]
+    ]
+    matPositions.forEach(([mx, my, mz]) => {
+      const gymMatGeo = new THREE.BoxGeometry(1.6, 0.03, 0.8)
+      const gymMat = new THREE.Mesh(gymMatGeo, new THREE.MeshLambertMaterial({ color: 0x111111 }))
+      gymMat.position.set(mx, my, mz)
+      scene.add(gymMat); objects.push(gymMat)
+    })
+
+    // Kettlebell rack (left front)
+    const kbRackGeo = new THREE.BoxGeometry(2.2, 0.7, 0.5)
+    const kbRack = new THREE.Mesh(kbRackGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }))
+    kbRack.position.set(-7.5, 0.35, 2)
+    scene.add(kbRack); objects.push(kbRack)
+
+    for (let kb = 0; kb < 5; kb++) {
+      const kbBodyGeo = new THREE.SphereGeometry(0.1 + kb * 0.012, 8, 8)
+      const kbBody = new THREE.Mesh(kbBodyGeo, new THREE.MeshLambertMaterial({ color: 0xdddddd }))
+      kbBody.position.set(-8.4 + kb * 0.44, 0.82, 2)
+      scene.add(kbBody); objects.push(kbBody)
+
+      const kbHandleGeo = new THREE.TorusGeometry(0.065, 0.018, 6, 12, Math.PI)
+      const kbHandle = new THREE.Mesh(kbHandleGeo, new THREE.MeshLambertMaterial({ color: 0xdddddd }))
+      kbHandle.position.set(-8.4 + kb * 0.44, 0.96, 2)
+      scene.add(kbHandle); objects.push(kbHandle)
+    }
+
+    // Water dispenser / cooler near wall
+    const dispenserBodyGeo = new THREE.CylinderGeometry(0.18, 0.18, 1.1, 10)
+    const dispenserBody = new THREE.Mesh(dispenserBodyGeo, new THREE.MeshLambertMaterial({ color: 0xffffff }))
+    dispenserBody.position.set(8.5, 0.55, 6)
+    scene.add(dispenserBody); objects.push(dispenserBody)
+
+    const dispenserJugGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.38, 10)
+    const dispenserJug = new THREE.Mesh(dispenserJugGeo, new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x001122, emissiveIntensity: 0.4, transparent: true, opacity: 0.75 }))
+    dispenserJug.position.set(8.5, 1.29, 6)
+    scene.add(dispenserJug); objects.push(dispenserJug)
+
     cam.position.set(0, 1.6, 9)
     cam.lookAt(0, 1.2, 0)
   }

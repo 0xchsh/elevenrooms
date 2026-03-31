@@ -268,6 +268,136 @@ export function createTennisScene(): SceneModule {
       objects.push(divMesh)
     }
 
+    // ---- ADVERTISING BOARDS along sidelines ----
+    const boardColors = [0x111111, 0x0a0a0a, 0x0d0d0d]
+    for (let side = -1; side <= 1; side += 2) {
+      for (let bi = 0; bi < 6; bi++) {
+        const boardGeo = new THREE.BoxGeometry(0.12, 0.9, 3.2)
+        const boardMat = new THREE.MeshLambertMaterial({
+          color: boardColors[bi % 3], emissive: 0xffffff, emissiveIntensity: 0.06
+        })
+        const board = new THREE.Mesh(boardGeo, boardMat)
+        board.position.set(side * 8.6, 0.45, -7.5 + bi * 3.0)
+        scene.add(board); objects.push(board)
+      }
+    }
+
+    // ---- PLAYER BENCHES at each end ----
+    for (let end = -1; end <= 1; end += 2) {
+      const benchGeo = new THREE.BoxGeometry(1.2, 0.06, 0.45)
+      const bench = new THREE.Mesh(benchGeo, mat.clone())
+      bench.position.set(end * 13.5, 0.44, 0)
+      scene.add(bench); objects.push(bench)
+
+      for (let bl = -1; bl <= 1; bl += 2) {
+        const bLegGeo = new THREE.BoxGeometry(0.05, 0.42, 0.05)
+        const bLeg = new THREE.Mesh(bLegGeo, mat.clone())
+        bLeg.position.set(end * 13.5 + bl * 0.52, 0.21, 0)
+        scene.add(bLeg); objects.push(bLeg)
+      }
+
+      // Player bag next to bench
+      const bagGeo = new THREE.BoxGeometry(0.25, 0.22, 0.55)
+      const bag = new THREE.Mesh(bagGeo, mat.clone())
+      bag.position.set(end * 13.5, 0.11, 0.5)
+      scene.add(bag); objects.push(bag)
+
+      // Water bottle on bench
+      const bottleGeo = new THREE.CylinderGeometry(0.035, 0.03, 0.2, 8)
+      const bottle = new THREE.Mesh(bottleGeo, mat.clone())
+      bottle.position.set(end * 13.5, 0.51, -0.1)
+      scene.add(bottle); objects.push(bottle)
+    }
+
+    // ---- BALL KIDS at net corners ----
+    const ballKidPositions: [number, number][] = [[-5.5, -0.8], [5.5, -0.8], [-5.5, 0.8], [5.5, 0.8]]
+    ballKidPositions.forEach(([bkx, bkz]) => {
+      // Body
+      const bodyGeo = new THREE.CylinderGeometry(0.1, 0.1, 0.6, 6)
+      const body = new THREE.Mesh(bodyGeo, mat.clone())
+      body.position.set(bkx, 0.5, bkz)
+      scene.add(body); objects.push(body)
+      // Head
+      const headGeo = new THREE.SphereGeometry(0.1, 6, 6)
+      const head = new THREE.Mesh(headGeo, mat.clone())
+      head.position.set(bkx, 0.9, bkz)
+      scene.add(head); objects.push(head)
+    })
+
+    // ---- CROWD SILHOUETTES in bleachers ----
+    for (let side = -1; side <= 1; side += 2) {
+      for (let row = 0; row < 3; row++) {
+        for (let seat = -5; seat <= 5; seat++) {
+          if (Math.random() < 0.75) {
+            const headGeo = new THREE.SphereGeometry(0.09 + Math.random() * 0.03, 5, 5)
+            const head = new THREE.Mesh(headGeo, mat.clone())
+            head.position.set(
+              side * (9.8 + row * 0.42),
+              0.72 + row * 0.38,
+              seat * 1.05
+            )
+            scene.add(head); objects.push(head)
+
+            const torsoGeo = new THREE.BoxGeometry(0.22, 0.28, 0.18)
+            const torso = new THREE.Mesh(torsoGeo, mat.clone())
+            torso.position.set(
+              side * (9.8 + row * 0.42),
+              0.48 + row * 0.38,
+              seat * 1.05
+            )
+            scene.add(torso); objects.push(torso)
+          }
+        }
+      }
+    }
+
+    // ---- TV CAMERA RIG at corner ----
+    const rigGeo = new THREE.BoxGeometry(0.12, 2.2, 0.12)
+    const rig = new THREE.Mesh(rigGeo, mat.clone())
+    rig.position.set(-12, 1.1, -6)
+    scene.add(rig); objects.push(rig)
+
+    const camBodyGeo = new THREE.BoxGeometry(0.35, 0.2, 0.55)
+    const camBody = new THREE.Mesh(camBodyGeo, mat.clone())
+    camBody.position.set(-12, 2.3, -5.8)
+    scene.add(camBody); objects.push(camBody)
+
+    const lensGeo = new THREE.CylinderGeometry(0.06, 0.08, 0.3, 8)
+    const lens = new THREE.Mesh(lensGeo, new THREE.MeshLambertMaterial({ color: 0x1a1a1a }))
+    lens.rotation.x = Math.PI / 2
+    lens.position.set(-12, 2.3, -5.45)
+    scene.add(lens); objects.push(lens)
+
+    // ---- STARS in sky ----
+    const starCount = 400
+    const starPos = new Float32Array(starCount * 3)
+    for (let i = 0; i < starCount; i++) {
+      const theta = Math.random() * Math.PI * 2
+      const phi = Math.random() * Math.PI * 0.45
+      const r = 42
+      starPos[i * 3 + 0] = r * Math.sin(phi) * Math.cos(theta)
+      starPos[i * 3 + 1] = r * Math.cos(phi) + 5
+      starPos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta)
+    }
+    const starGeo = new THREE.BufferGeometry()
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3))
+    const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.18, transparent: true, opacity: 0.7 })
+    const stars = new THREE.Points(starGeo, starMat)
+    scene.add(stars); objects.push(stars)
+
+    // ---- FLAGPOLES at court ends ----
+    for (let side = -1; side <= 1; side += 2) {
+      const flagPoleGeo = new THREE.CylinderGeometry(0.03, 0.03, 3.5, 6)
+      const flagPole = new THREE.Mesh(flagPoleGeo, mat.clone())
+      flagPole.position.set(side * 12.5, 1.75, -8)
+      scene.add(flagPole); objects.push(flagPole)
+
+      const flagGeo = new THREE.BoxGeometry(0.8, 0.5, 0.03)
+      const flagMesh = new THREE.Mesh(flagGeo, mat.clone())
+      flagMesh.position.set(side * 12.5 + side * 0.4, 3.3, -8)
+      scene.add(flagMesh); objects.push(flagMesh)
+    }
+
     orbitAngle = 0
     cam.position.set(0, 3, 14)
     cam.lookAt(0, 0.5, 0)
