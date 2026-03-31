@@ -200,8 +200,8 @@ export default function ControlBar({
 
             {/* Main body text */}
             <p style={{ ...MONO, fontSize: 14, lineHeight: 1.9, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', margin: 0 }}>
-              <span style={{ color: '#ffffff', fontWeight: 600 }}>ELEVEN ROOMS</span>
-              {' '}IS AN AMBIENT SOUNDSCAPE EXPERIENCE. CHOOSE A ROOM, TOGGLE THE LAYERS OF SOUND ON AND OFF, AND LET THE ATMOSPHERE CARRY YOU. EACH ROOM IS A SMALL ASCII WORLD — PART VISUAL, PART SONIC.
+              <span style={{ color: '#ffffff', fontWeight: 600 }}>ELEVENROOMS</span>
+              {' '}IS AN AMBIENT SOUNDSCAPE EXPERIENCE POWERED BY ELEVENLABS API. CHOOSE A ROOM, TOGGLE BACK THE LAYERS OF SOUND, AND LET THE ATMOSPHERE CARRY YOU. EACH ROOM IS A SMALL ASCII WORLD—PART VISUAL, PART SONIC.
             </p>
 
             {/* Credits */}
@@ -232,7 +232,7 @@ export default function ControlBar({
                 </div>
               </a>
             </div>
-            <p style={{ ...MONO, fontSize: 14, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: 0, marginTop: 24 }}>
+            <p style={{ ...MONO, fontSize: 14, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: 0, marginTop: 32 }}>
               <a href="https://github.com/0xchsh/elevenrooms" target="_blank" rel="noopener noreferrer" className="info-link" style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 500, textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px', display: 'inline-flex', alignItems: 'center', gap: 6 }}><GithubLogo size={18} weight="fill" style={{ color: 'rgba(255,255,255,0.35)' }} />GITHUB</a>
             </p>
           </div>
