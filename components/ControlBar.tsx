@@ -308,7 +308,7 @@ export default function ControlBar({
         >
           {volume === 0
             ? <SpeakerSlash size={17} weight="fill" style={{ color: INK_DIM }} />
-            : <SpeakerHigh size={17} weight="fill" style={{ color: INK }} />
+            : <SpeakerHigh size={17} weight="fill" style={{ color: tint }} />
           }
         </button>
 
