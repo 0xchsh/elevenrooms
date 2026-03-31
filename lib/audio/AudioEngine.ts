@@ -22,9 +22,14 @@ export class AudioEngine {
     // Use webkit prefix fallback for older iOS Safari
     const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
     this.ctx = new AC()
-    // Resume synchronously within the user gesture — iOS Safari requires
-    // ctx.resume() to be called (not just awaited) during the gesture handler
+    // iOS Safari unlock: resume + play a silent buffer synchronously within
+    // the gesture handler — most reliable unlock pattern for WebKit
     void this.ctx.resume()
+    const silentBuf = this.ctx.createBuffer(1, 1, 22050)
+    const silentSrc = this.ctx.createBufferSource()
+    silentSrc.buffer = silentBuf
+    silentSrc.connect(this.ctx.destination)
+    silentSrc.start(0)
     this.masterGain = this.ctx.createGain()
     this.masterGain.gain.value = 0.8
     this.masterGain.connect(this.ctx.destination)

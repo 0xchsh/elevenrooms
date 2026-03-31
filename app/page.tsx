@@ -28,16 +28,17 @@ export default function Home() {
   layerStepRef.current = layerStep
   volumeRef.current = volume
 
-  async function initAudio() {
+  function initAudio() {
     if (audioEngineRef.current) return
-    // AudioEngine must be instantiated synchronously within the user gesture
-    // handler so iOS Safari allows AudioContext to start
+    // Synchronous: iOS Safari requires AudioContext creation + resume to happen
+    // within the synchronous part of the gesture handler
     const engine = new AudioEngine()
     audioEngineRef.current = engine
-    await engine.setScene(sceneRef.current)
-    engine.setLayerStep(layerStepRef.current)
-    engine.setMasterVolume(volumeRef.current)
     setAudioReady(true)
+    engine.setScene(sceneRef.current).then(() => {
+      engine.setLayerStep(layerStepRef.current)
+      engine.setMasterVolume(volumeRef.current)
+    })
   }
 
   // Sync scene changes to audio
