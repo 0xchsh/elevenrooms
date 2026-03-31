@@ -77,7 +77,7 @@ export default function Home() {
             className="tracking-widest uppercase animate-pulse pointer-events-none"
             style={{ color: '#ffffff', fontFamily: 'monospace', fontSize: 'clamp(11px, 3vw, 16px)', letterSpacing: '0.2em' }}
           >
-            click to enable sound
+            click to enter
           </span>
         </div>
       )}
