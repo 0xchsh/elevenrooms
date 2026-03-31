@@ -5,7 +5,7 @@ import {
   Buildings, Coffee, Leaf, Flame, BookOpen, Scissors, Rocket, Waves,
   SpeakerHigh, SpeakerSlash, DiceFive, Info,
   Barbell, TennisBall, BowlFood, Umbrella, MusicNotes, Headphones,
-  PokerChip, WashingMachine, CaretUp, X,
+  PokerChip, WashingMachine, CaretUp, X, GithubLogo,
 } from '@phosphor-icons/react'
 import type { SceneName, LayerStep } from '@/lib/three/types'
 import { SCENE_COLORS } from '@/lib/three/asciiRenderer'
@@ -200,7 +200,7 @@ export default function ControlBar({
 
             {/* Main body text */}
             <p style={{ ...MONO, fontSize: 14, lineHeight: 1.9, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', margin: 0 }}>
-              <span style={{ color: '#ffffff', fontWeight: 700 }}>ELEVEN ROOMS</span>
+              <span style={{ color: '#ffffff', fontWeight: 600 }}>ELEVEN ROOMS</span>
               {' '}IS AN AMBIENT SOUNDSCAPE EXPERIENCE. CHOOSE A ROOM, TOGGLE THE LAYERS OF SOUND ON AND OFF, AND LET THE ATMOSPHERE CARRY YOU. EACH ROOM IS A SMALL ASCII WORLD — PART VISUAL, PART SONIC.
             </p>
 
@@ -232,6 +232,9 @@ export default function ControlBar({
                 </div>
               </a>
             </div>
+            <p style={{ ...MONO, fontSize: 14, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', margin: 0, marginTop: 24 }}>
+              <a href="https://github.com/0xchsh/elevenrooms" target="_blank" rel="noopener noreferrer" className="info-link" style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 500, textDecoration: 'underline', textDecorationStyle: 'dotted', textUnderlineOffset: '3px', display: 'inline-flex', alignItems: 'center', gap: 6 }}><GithubLogo size={18} weight="fill" style={{ color: 'rgba(255,255,255,0.35)' }} />GITHUB</a>
+            </p>
           </div>
         </>
       )}
