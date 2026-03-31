@@ -125,7 +125,7 @@ export default function ControlBar({
               border: '1px solid rgba(255,255,255,0.12)',
               borderRadius: 16,
               boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
-              minWidth: 340,
+              minWidth: isMobile ? 300 : 340,
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
               opacity: pickerVisible ? 1 : 0,
@@ -149,8 +149,8 @@ export default function ControlBar({
                     borderRadius: 8,
                   }}
                 >
-                  <Icon size={26} weight="fill" style={{ color: active ? SCENE_COLORS[s] : INK_DIM }} />
-                  <span style={{ ...MONO, fontSize: 14, color: active ? SCENE_COLORS[s] : INK_DIM, textTransform: 'uppercase' }}>
+                  <Icon size={isMobile ? 22 : 26} weight="fill" style={{ color: active ? SCENE_COLORS[s] : INK_DIM }} />
+                  <span style={{ ...MONO, fontSize: isMobile ? 10 : 14, color: active ? SCENE_COLORS[s] : INK_DIM, textTransform: 'uppercase' }}>
                     {label}
                   </span>
                 </button>

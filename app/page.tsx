@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react'
 import ControlBar from '@/components/ControlBar'
 import type { SceneName, LayerStep } from '@/lib/three/types'
 import { SCENE_COLORS } from '@/lib/three/asciiRenderer'
-import type { AudioEngine } from '@/lib/audio/AudioEngine'
+import { AudioEngine } from '@/lib/audio/AudioEngine'
 
 const SceneViewer = dynamic(() => import('@/components/SceneViewer'), {
   ssr: false,
@@ -30,7 +30,8 @@ export default function Home() {
 
   async function initAudio() {
     if (audioEngineRef.current) return
-    const { AudioEngine } = await import('@/lib/audio/AudioEngine')
+    // AudioEngine must be instantiated synchronously within the user gesture
+    // handler so iOS Safari allows AudioContext to start
     const engine = new AudioEngine()
     audioEngineRef.current = engine
     await engine.setScene(sceneRef.current)
