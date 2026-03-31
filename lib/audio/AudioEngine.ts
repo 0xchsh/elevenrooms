@@ -19,20 +19,16 @@ export class AudioEngine {
   private currentLayerStep: LayerStep = 4
 
   constructor() {
-    // Use webkit prefix fallback for older iOS Safari
-    const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    // webkit prefix fallback for older iOS
+    const AC = (window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)
     this.ctx = new AC()
-    // iOS Safari unlock: resume + play a silent buffer synchronously within
-    // the gesture handler — most reliable unlock pattern for WebKit
-    void this.ctx.resume()
-    const silentBuf = this.ctx.createBuffer(1, 1, 22050)
-    const silentSrc = this.ctx.createBufferSource()
-    silentSrc.buffer = silentBuf
-    silentSrc.connect(this.ctx.destination)
-    silentSrc.start(0)
     this.masterGain = this.ctx.createGain()
     this.masterGain.gain.value = 0.8
     this.masterGain.connect(this.ctx.destination)
+    // Re-resume whenever iOS suspends the context (phone calls, backgrounding, etc.)
+    this.ctx.addEventListener('statechange', () => {
+      if (this.ctx.state === 'suspended') void this.ctx.resume()
+    })
   }
 
   async resume() {
@@ -42,7 +38,10 @@ export class AudioEngine {
   private async fetchBuffer(src: string): Promise<AudioBuffer> {
     const res = await fetch(src)
     const arrayBuffer = await res.arrayBuffer()
-    return this.ctx.decodeAudioData(arrayBuffer)
+    // Use callback-based decodeAudioData for broader iOS Safari compatibility
+    return new Promise((resolve, reject) => {
+      this.ctx.decodeAudioData(arrayBuffer, resolve, reject)
+    })
   }
 
   // ── Looping engine ────────────────────────────────────────────────────────
